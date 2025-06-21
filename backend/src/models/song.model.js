@@ -28,7 +28,8 @@ const songSchema = new mongoose.Schema(
       required: false, // Optional, can be null if not part of an album
     },
   },
-  { timestamps: true }
+  {timestamps: true}
 );
 
-export const Song = mongoose.model("Song", songSchema);
+const Song = mongoose.model("Song", songSchema);
+export default Song;

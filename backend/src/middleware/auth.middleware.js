@@ -6,7 +6,6 @@ export const protectRoute = async (req, res, next) => {
       .status(401)
       .json({message: "Unauthorized - you must be logged in"});
   }
-
   next();
 };
 
@@ -25,8 +24,6 @@ export const requireAdmin = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Error checking admin status:", error);
-    return res
-      .status(500)
-      .json({message: "Internal Server Error - unable to verify admin status"});
+    next(error);
   }
 };

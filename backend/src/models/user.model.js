@@ -16,7 +16,8 @@ const userSchema = new mongoose.Schema(
       unique: true, // Ensure clerkId is unique
     },
   },
-  { timestamps: true }
+  {timestamps: true}
 );
 
-export const User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;

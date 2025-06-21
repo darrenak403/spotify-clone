@@ -1,8 +1,11 @@
 import {Router} from "express";
-import {getAdmin} from "../controller/admin.controller.js";
+import {getAlbumById, getAllAlbums} from "../controller/album.controller.js";
+// import {getAdmin} from "../controller/admin.controller.js";
 
 const router = Router();
 
-router.get("/", getAdmin);
+// Add a handler function for the route
+router.get("/", getAllAlbums);
+router.get("/:albumId", getAlbumById);
 
 export default router;
