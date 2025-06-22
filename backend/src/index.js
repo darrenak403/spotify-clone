@@ -38,17 +38,17 @@ app.use("/api/stats", statRouter);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Error occurred:", err);
-  res
-    .status(500)
-    .json({
-      message:
-        process.env.NODE_ENV === "production"
-          ? "Internal Server Error"
-          : err.message,
-    });
+  res.status(500).json({
+    message:
+      process.env.NODE_ENV === "production"
+        ? "Internal Server Error"
+        : err.message,
+  });
 });
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   connectDB();
 });
+
+//todo: Socket.io
