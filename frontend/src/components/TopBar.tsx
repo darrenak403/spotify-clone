@@ -15,7 +15,7 @@ const TopBar = () => {
       backdrop-blur-md z-10"
     >
       <div className="flex gap-2 items-center">
-        <img src="/spotify.png" alt="Spotify logo" className="size-8" />
+        <img src="/spotify-red.png" alt="Spotify logo" className="size-8" />
         Spotify
       </div>
       <div className="flex gap-4 items-center">
