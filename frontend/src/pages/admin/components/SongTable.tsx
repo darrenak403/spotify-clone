@@ -11,7 +11,7 @@ import {useMusicStore} from "@/stores/useMusicStore";
 import {Calendar, Trash2} from "lucide-react";
 
 const SongTable = () => {
-  const {songs, isLoading, error} = useMusicStore();
+  const {songs, isLoading, error, deleteSong} = useMusicStore();
 
   if (isLoading) {
     return (
