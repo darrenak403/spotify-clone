@@ -16,6 +16,5 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1500, // tăng lên 1.5MB
-    outDir: "public",
   },
 })
