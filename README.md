@@ -1,4 +1,4 @@
-### Spotify Clone 
+# Spotify Clone 
 -Currently, the deployment is facing an issue.
 
 This project is a personal learning and exploration exercise inspired by Spotify. It was built out of my passion for music streaming platforms and my desire to learn and experiment with modern web technologies.
