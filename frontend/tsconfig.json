@@ -5,9 +5,9 @@
     { "path": "./tsconfig.node.json" }
   ],
     "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "./src",  // Thư mục gốc (hoặc thư mục bạn muốn sử dụng làm gốc)
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["*"]
     }
   }
 }
