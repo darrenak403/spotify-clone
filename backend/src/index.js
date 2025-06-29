@@ -5,7 +5,9 @@ import fileUpload from "express-fileupload";
 import path from "path";
 import {connectDB} from "./lib/db.js";
 import cors from "cors";
+import fs from "fs";
 import {createServer} from "http";
+import cron from "node-cron";
 
 import {initializeSocket} from "./lib/socket.js";
 
@@ -42,12 +44,42 @@ app.use(
   })
 ); //to handle file uploads
 
+//cron job
+const tmpDir = path.join(process.cwd(), "tmp");
+cron.schedule("0 * * * *", () => {
+  if (fs.existsSync(tmpDir)) {
+    fs.readdir(tmpDir, (err, files) => {
+      if (err) {
+        console.error("Error reading tmp directory:", err);
+        return;
+      }
+      for (const file of files) { 
+        fs.unlink(path.join(tmpDir, file), (err) => {
+          if (err) {
+            console.error(`Error deleting file ${file}:`, err);
+          }
+        });
+      }
+    });
+  }
+});
+
 app.use("/api/users", userRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/songs", songRouter);
 app.use("/api/albums", albumRouter);
 app.use("/api/stats", statRouter);
+
+if (process.env.NODE_ENV === "production") {
+  // Serve static files from the React app
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  // Handle any requests that don't match the above routes with React's index.html
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
