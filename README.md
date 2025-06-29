@@ -16,28 +16,28 @@ This project is a personal learning and exploration exercise inspired by Spotify
 ## 🚀 Technologies
 
 ### Frontend
-**React**  
-**Vite**  
-**TypeScript**  
-**Tailwind CSS**  
-**Radix UI**  
-**Clerk**  
-**React Router DOM**  
-**Socket.io-client**  
-**Zustand**  
-**Lucide-react**  
-**React Hot Toast**  
-**React Resizable Panels**  
-**Class Variance Authority**  
-**clsx**  
+- **React**  
+- **Vite**  
+- **TypeScript**  
+- **Tailwind CSS**  
+- **Radix UI**  
+- **Clerk**  
+- **React Router DOM**  
+- **Socket.io-client**  
+- **Zustand**  
+- **Lucide-react**  
+- **React Hot Toast**  
+- **React Resizable Panels**  
+- **Class Variance Authority**  
+- **clsx**  
 
 ### Backend
-**Express**  
-**MongoDB**  
-**Cloudinary**  
-**dotenv**  
-**CORS**  
-**express-fileupload**  
-**Clerk (express)**  
-**Socket.io**  
-**node-cron**  
+- **Express**  
+- **MongoDB**  
+- **Cloudinary**  
+- **dotenv**  
+- **CORS**  
+- **express-fileupload**  
+- **Clerk (express)**  
+- **Socket.io**  
+- **node-cron**  
