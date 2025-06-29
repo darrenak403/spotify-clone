@@ -13,5 +13,9 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-  }
+  },
+  build: {
+    chunkSizeWarningLimit: 1500, // tăng lên 1.5MB
+    outDir: "public",
+  },
 })
