@@ -6,9 +6,9 @@ This project is a personal learning and exploration exercise inspired by Spotify
 
 ## 🖼️ Screenshots / Demo
 
-![Screenshot 1]([path/to/your/screenshot1.png](https://github.com/darrenak403/spotify-clone/blob/main/Screenshots/Home.png))
-![Screenshot 2]([path/to/your/screenshot2.png](https://github.com/darrenak403/spotify-clone/blob/main/Screenshots/Dashboard.png))
-![Screenshot 3]([[path/to/your/screenshot2.png](https://github.com/darrenak403/spotify-clone/blob/main/Screenshots/Dashboard.png)](https://github.com/darrenak403/spotify-clone/blob/main/Screenshots/Chat%20RealTime.png))
+![Screenshot 1](https://github.com/darrenak403/spotify-clone/blob/main/Screenshots/Home.png)
+![Screenshot 2](https://github.com/darrenak403/spotify-clone/blob/main/Screenshots/Dashboard.png)
+![Screenshot 3](https://github.com/darrenak403/spotify-clone/blob/main/Screenshots/Chat%20RealTime.png)
 <!-- Add more images as needed -->
 
 ---
