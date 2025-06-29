@@ -15,7 +15,7 @@ This project is a personal learning and exploration exercise inspired by Spotify
 ## 🚀 Technologies
 
 ### Frontend
-##React  
+## React  
 Vite  
 TypeScript  
 Tailwind CSS  
