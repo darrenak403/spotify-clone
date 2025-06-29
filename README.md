@@ -15,7 +15,33 @@ This project is a personal learning and exploration exercise inspired by Spotify
 ## 🚀 Technologies
 
 ### Frontend
-React, Vite, TypeScript, Tailwind CSS, Radix UI, Clerk, React Router DOM, Socket.io-client, Zustand, Lucide-react, React Hot Toast, React Resizable Panels, Class Variance Authority, clsx, Tailwind-css
+##React  
+Vite  
+TypeScript  
+Tailwind CSS  
+Radix UI  
+Clerk  
+React Router DOM  
+Socket.io-client  
+Zustand  
+Lucide-react  
+React Hot Toast  
+React Resizable Panels  
+Class Variance Authority  
+clsx  
+Tailwind Merge  
+tw-animate-css  
 
 ### Backend
-Express, MongoDB, Cloudinary, dotenv, CORS, express-fileupload, Clerk (express), Socket.io, node-cron
+Node.js  
+Express  
+MongoDB  
+Mongoose  
+Cloudinary  
+dotenv  
+CORS  
+express-fileupload  
+Clerk (express)  
+Socket.io  
+node-cron  
+Nodemon  
