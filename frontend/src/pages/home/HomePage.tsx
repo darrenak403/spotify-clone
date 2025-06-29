@@ -4,8 +4,7 @@ import FeaturedSection from "./components/FeaturedSection";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import SectionGrid from "./components/SectionGrid";
 import {usePlayerStore} from "@/stores/usePlayerStore";
-import Topbar from "@/components/Topbar";
-
+import Topbar from "../../components/Topbar";
 const HomePage = () => {
   const {
     fetchFeaturedSongs,

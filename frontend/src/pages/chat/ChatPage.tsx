@@ -6,7 +6,7 @@ import ChatHeader from "./components/ChatHeader";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {Avatar, AvatarImage} from "@/components/ui/avatar";
 import MessageInput from "./components/MessageInput";
-import Topbar from "@/components/Topbar";
+import Topbar from "../../components/Topbar";
 
 const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString("en-US", {
