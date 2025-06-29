@@ -1,4 +1,4 @@
-import TopBar from "@/components/TopBar";
+import TopBar from "@/components/Topbar";
 import {useMusicStore} from "@/stores/useMusicStore";
 import {useEffect} from "react";
 import FeaturedSection from "./components/FeaturedSection";
