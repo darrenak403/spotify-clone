@@ -11,7 +11,6 @@ import {Toaster} from "react-hot-toast";
 import NotFoundPage from "./pages/404/NotFoundPage";
 
 function App() {
-  //token:
   return (
     <>
       <Routes>

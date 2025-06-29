@@ -10,7 +10,7 @@ import {
 
 const router = Router();
 
-//
+
 router.use(protectRoute, requireAdmin); // Apply protectRoute middleware to all admin routes
 
 router.get("/check", checkAdmin);
