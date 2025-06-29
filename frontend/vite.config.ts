@@ -17,5 +17,15 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 1500, // tăng lên 1.5MB
     outDir: "dist",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom"],
+          clerk: ["@clerk/clerk-react"],
+          lucide: ["lucide-react"],
+          // Thêm các thư viện lớn khác nếu cần
+        },
+      },
+    },
   },
 })
