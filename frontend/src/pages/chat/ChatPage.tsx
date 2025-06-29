@@ -6,7 +6,7 @@ import ChatHeader from "./components/ChatHeader";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {Avatar, AvatarImage} from "@/components/ui/avatar";
 import MessageInput from "./components/MessageInput";
-import Topbar from "../../components/Topbar";
+import TopBar from "@/components/TopBar";
 
 const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString("en-US", {
@@ -42,7 +42,7 @@ const ChatPage = () => {
 
   return (
     <main className="h-full rounded-lg bg-gradient-to-b from-zinc-800 to-zinc-900 overflow-hidden">
-      <Topbar />
+      <TopBar />
       <div className="grid lg:grid-cols-[300px_1fr] grid-cols-[80px_1fr] h-[calc(100vh-180px)]">
         <UsersList />
 

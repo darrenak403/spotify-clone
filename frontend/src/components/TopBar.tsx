@@ -6,7 +6,7 @@ import {useAuthStore} from "@/stores/useAuthStore";
 import {buttonVariants} from "./ui/button";
 import {cn} from "@/lib/utils";
 
-const Topbar = () => {
+const TopBar = () => {
   const {isAdmin} = useAuthStore();
   console.log({isAdmin});
   return (
@@ -43,4 +43,4 @@ const Topbar = () => {
   );
 };
 
-export default Topbar;
+export default TopBar;
