@@ -1,11 +1,11 @@
 {
   "name": "spotify-clone",
   "version": "1.0.0",
-  "description": "hi",
+  "description": "- Currently, the deployment is facing an issue.",
   "main": "index.js",
   "scripts": {
-    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
-		"start": "npm start --prefix backend"
+      "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+      "start": "npm start --prefix backend"
   },
   "repository": {
     "type": "git",
@@ -13,5 +13,9 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/darrenak403/spotify-clone/issues"
+  },
+  "homepage": "https://github.com/darrenak403/spotify-clone#readme"
 }
