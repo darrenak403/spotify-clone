@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import {clerkMiddleware} from "@clerk/express";
+// import {clerkMiddleware} from "@clerk/express";
 import fileUpload from "express-fileupload";
 import path from "path";
 import {connectDB} from "./lib/db.js";
@@ -34,7 +34,7 @@ app.use(
 ); //to allow cross-origin requests
 
 app.use(express.json()); //to parse JSON bodies
-app.use(clerkMiddleware()); //this will add auth to req obj => req.auth
+// app.use(clerkMiddleware()); //this will add auth to req obj => req.auth
 app.use(
   fileUpload({
     useTempFiles: true, //to store files in a temporary directory
