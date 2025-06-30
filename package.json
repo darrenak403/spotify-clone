@@ -14,8 +14,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/darrenak403/spotify-clone/issues"
-  },
-  "homepage": "https://github.com/darrenak403/spotify-clone#readme"
+  "engines": {
+    "node": "20.x"
+  }
+
 }
