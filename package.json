@@ -4,8 +4,9 @@
   "description": "- Currently, the deployment is facing an issue.",
   "main": "index.js",
   "scripts": {
-      "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
-      "start": "npm start --prefix backend"
+    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+    "start": "npm start --prefix backend",
+    "postinstall": "npm install --prefix backend && npm install --prefix frontend"
   },
   "repository": {
     "type": "git",
@@ -15,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "engines": {
-  "node": "20.x"
+    "node": "20.x"
   },
   "bugs": {
     "url": "https://github.com/darrenak403/spotify-clone/issues"
