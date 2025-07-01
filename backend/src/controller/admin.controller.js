@@ -1,6 +1,7 @@
 import Song from "../models/song.model.js";
 import Album from "../models/album.model.js";
 import cloudinary from "../lib/cloudinary.js"; //assuming you have a cloudinary config file
+import {clerkClient} from "@clerk/clerk-sdk-node"; // Thêm dòng này nếu chưa có
 
 //helper function to upload files to Cloudinary
 const uploadToCloudinary = async (file) => {
@@ -123,8 +124,44 @@ export const deleteAlbum = async (req, res, next) => {
   }
 };
 
-export const checkAdmin = (req, res, next) => {
-  res.status(200).json({
-    admin: true,
-  });
+export const checkAdmin = async (req, res) => {
+  try {
+    const userId = req.user?.userId || req.user?.sub;
+    if (!userId) {
+      return res
+        .status(401)
+        .json({isAdmin: false, message: "No userId in token"});
+    }
+
+    const user = await clerkClient.users.getUser(userId);
+    // Tìm email theo primaryEmailAddressId
+    let userEmail;
+    if (user.primaryEmailAddressId && user.emailAddresses) {
+      const primaryEmailObj = user.emailAddresses.find(
+        (e) => e.id === user.primaryEmailAddressId
+      );
+      userEmail = primaryEmailObj?.emailAddress;
+    }
+    // Nếu không tìm được, fallback lấy email đầu tiên
+    if (!userEmail && user.emailAddresses?.length > 0) {
+      userEmail = user.emailAddresses[0].emailAddress;
+    }
+
+    const adminEmail = process.env.ADMIN_EMAIL;
+
+    console.log("Clerk user email:", userEmail);
+    console.log("ADMIN_EMAIL:", adminEmail);
+
+    if (userEmail === adminEmail) {
+      return res.json({isAdmin: true});
+    }
+    return res
+      .status(403)
+      .json({isAdmin: false, message: "Forbidden - you must be an admin"});
+  } catch (error) {
+    console.error("Error checking admin:", error);
+    return res
+      .status(500)
+      .json({isAdmin: false, message: "Internal server error"});
+  }
 };
