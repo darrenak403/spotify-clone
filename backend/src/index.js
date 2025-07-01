@@ -21,7 +21,7 @@ import statRouter from "./routes/stat.route.js";
 dotenv.config();
 const __dirname = path.resolve(); //to get the current directory path
 const app = express();
-const PORT = process.env.PORT;
+// const PORT = process.env.PORT;
 
 const httpServer = createServer(app);
 initializeSocket(httpServer);
@@ -60,12 +60,12 @@ cron.schedule("0 * * * *", () => {
   }
 });
 
+app.use("/api/users", userRouter);
 app.use("/api/admin", adminRouter);
-// app.use("/api/users", userRouter);
-// app.use("/api/auth", authRouter);
-// app.use("/api/songs", songRouter);
-// app.use("/api/albums", albumRouter);
-// app.use("/api/stats", statRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/songs", songRouter);
+app.use("/api/albums", albumRouter);
+app.use("/api/stats", statRouter);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
@@ -86,7 +86,7 @@ app.use((err, req, res, next) => {
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:5000`);
   connectDB();
 });
 
