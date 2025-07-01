@@ -111,8 +111,8 @@ export const createAlbum = async (req, res, next) => {
 
 export const deleteAlbum = async (req, res, next) => {
   try {
-    const {id} = req.params._id || req.params.id || req.params;
-
+    const {id} = req.params;
+    console.log("Album ID:", id);
     await Song.deleteMany({album: id}); //delete all songs in the album
     await Album.findByIdAndDelete(id);
     res.status(200).json({
@@ -126,7 +126,8 @@ export const deleteAlbum = async (req, res, next) => {
 
 export const checkAdmin = async (req, res) => {
   try {
-    const userId = req.user?.userId || req.user?.sub;
+    const userId = req.auth?.userId;
+    console.log("User ID from auth:", userId);
     if (!userId) {
       return res
         .status(401)

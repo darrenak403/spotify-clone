@@ -17,6 +17,7 @@ function getKey(header, callback) {
 // Middleware bảo vệ route
 export const protectRoute = (req, res, next) => {
   const authHeader = req.headers.authorization;
+  console.log("authHeader:", authHeader);
   if (!authHeader) return res.status(401).json({message: "No token provided"});
 
   const token = authHeader.split(" ")[1];
@@ -25,8 +26,12 @@ export const protectRoute = (req, res, next) => {
       console.error("Error verifying token:", err);
       return res.status(401).json({message: "Invalid token"});
     }
+    // Gán đúng userId cho req.auth
     req.user = decoded;
-    req.auth = decoded;
+    req.auth = {
+      userId: decoded.userId || decoded.sub, // Clerk thường nằm ở sub
+      ...decoded,
+    };
     next();
   });
 };

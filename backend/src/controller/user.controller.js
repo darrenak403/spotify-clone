@@ -14,7 +14,12 @@ export const getAllUsers = async (req, res, next) => {
 export const getMessages = async (req, res, next) => {
   try {
     const myId = req.auth.userId;
-    const {userId} = req.params.userId || req.params;
+    const {userId} = req.params;
+
+    // Log tham số userId và toàn bộ req.params
+    console.log("myId:", myId);
+    console.log("userId:", userId);
+    console.log("req.params:", req.params);
 
     const messages = await Message.find({
       $or: [
