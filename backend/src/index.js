@@ -28,7 +28,7 @@ initializeSocket(httpServer);
 
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, "http://localhost:3000"], //allow requests from this origin
+    origin: process.env.FRONTEND_URL, //allow requests from this origin
     credentials: true, //to allow cookies to be sent with requests
   })
 ); //to allow cross-origin requests
