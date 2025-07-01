@@ -17,7 +17,6 @@ import authRouter from "./routes/auth.route.js";
 import songRouter from "./routes/song.route.js";
 import albumRouter from "./routes/album.route.js";
 import statRouter from "./routes/stat.route.js";
-import wildcardRouter from "./routes/wildcard.route.js";
 
 dotenv.config();
 const __dirname = path.resolve(); //to get the current directory path
@@ -67,7 +66,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/songs", songRouter);
 app.use("/api/albums", albumRouter);
 app.use("/api/stats", statRouter);
-app.use("*", wildcardRouter);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
@@ -91,3 +89,5 @@ httpServer.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   connectDB();
 });
+
+

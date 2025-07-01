@@ -58,7 +58,7 @@ export const createSong = async (req, res, next) => {
 
 export const deleteSong = async (req, res, next) => {
   try {
-    const {id} = req.params;
+    const {id} = req.params._id || req.params.id || req.params;
 
     const song = await Song.findById(id);
 
@@ -111,7 +111,7 @@ export const createAlbum = async (req, res, next) => {
 
 export const deleteAlbum = async (req, res, next) => {
   try {
-    const {id} = req.params;
+    const {id} = req.params._id || req.params.id || req.params;
 
     await Song.deleteMany({album: id}); //delete all songs in the album
     await Album.findByIdAndDelete(id);
