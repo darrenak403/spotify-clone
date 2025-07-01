@@ -1,6 +1,6 @@
 # Spotify Clone 
 
-- Live demo: [Spotify Clone](https://spotify-clone-v1-fqb8.onrender.com)
+- Live demo: [See the demo here.](https://spotify-clone-v1-fqb8.onrender.com)
 
 This project is a personal learning and exploration exercise inspired by Spotify. It was built out of my passion for music streaming platforms and my desire to learn and experiment with modern web technologies.
 ---
