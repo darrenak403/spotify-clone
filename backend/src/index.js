@@ -21,7 +21,7 @@ import statRouter from "./routes/stat.route.js";
 dotenv.config();
 const __dirname = path.resolve(); //to get the current directory path
 const app = express();
-// const PORT = process.env.PORT;
+const PORT = process.env.PORT;
 
 const httpServer = createServer(app);
 initializeSocket(httpServer);
@@ -86,8 +86,6 @@ app.use((err, req, res, next) => {
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:5000`);
+  console.log(`Server is running on http://localhost:${PORT}`);
   connectDB();
 });
-
-//todo: Socket.io
