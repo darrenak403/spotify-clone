@@ -28,10 +28,10 @@ initializeSocket(httpServer);
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, //allow requests from this origin
-    credentials: true, //to allow cookies to be sent with requests
+    origin: "http://localhost:3000",
+    credentials: true,
   })
-); //to allow cross-origin requests
+);
 
 app.use(express.json()); //to parse JSON bodies
 // app.use(clerkMiddleware()); //this will add auth to req obj => req.auth
