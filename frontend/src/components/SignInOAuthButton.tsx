@@ -7,12 +7,12 @@ const SignInOAuthButton = () => {
   if (!isLoaded) {
     return null;
   }
-
+  // todo: fix login on render
   const signInWithGoogle = async () => {
     signIn?.authenticateWithRedirect({
       strategy: "oauth_google",
       redirectUrl: "/sso-callback",
-      redirectUrlComplete: "/auth-callback",
+      redirectUrlComplete: "/",
     });
   };
 

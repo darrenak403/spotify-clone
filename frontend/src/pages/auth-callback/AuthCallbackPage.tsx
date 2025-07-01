@@ -24,6 +24,7 @@ const AuthCallbackPage = () => {
 
         console.log("Sending POST /auth/callback");
         await axiosInstance.post("/auth/callback", {
+          // todo: fix login on render
           id: user.id,
           firstName: user.firstName,
           lastName: user.lastName,
@@ -36,7 +37,6 @@ const AuthCallbackPage = () => {
       } finally {
         console.log("Navigating to /");
         navigate("/");
-        window.location.reload();
       }
     };
 
