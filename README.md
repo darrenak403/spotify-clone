@@ -40,6 +40,7 @@ This project is a personal learning and exploration exercise inspired by Spotify
 - **dotenv**  
 - **CORS**  
 - **express-fileupload**  
-- **Clerk (express)**  
+- **Clerk (express)**
+- **Jwts**
 - **Socket.io**  
 - **node-cron**  
