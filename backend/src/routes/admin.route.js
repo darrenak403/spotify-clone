@@ -10,9 +10,9 @@ import {
 
 const router = Router();
 
-router.get("/check", protectRoute, checkAdmin);
 router.use(protectRoute, requireAdmin); // Apply protectRoute middleware to all admin routes
 
+router.get("/check", checkAdmin);
 router.post("/songs", createSong);
 router.delete("/songs/:id", deleteSong);
 router.post("/albums", createAlbum);
