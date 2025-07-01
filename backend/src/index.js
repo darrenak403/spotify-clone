@@ -20,7 +20,7 @@ import statRouter from "./routes/stat.route.js";
 dotenv.config();
 const __dirname = path.resolve();
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 const httpServer = createServer(app);
 initializeSocket(httpServer);
@@ -66,7 +66,6 @@ app.use("/api/songs", songRouter);
 app.use("/api/albums", albumRouter);
 app.use("/api/stats", statRouter);
 
-
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
   app.get("*", (req, res) => {
@@ -74,7 +73,10 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-console.log("index.html exists:", fs.existsSync(path.join(__dirname, "../frontend/dist/index.html")));
+console.log(
+  "index.html exists:",
+  fs.existsSync(path.join(__dirname, "../frontend/dist/index.html"))
+);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
