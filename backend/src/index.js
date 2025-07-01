@@ -1,6 +1,5 @@
 import express from "express";
 import dotenv from "dotenv";
-// import {clerkMiddleware} from "@clerk/express";
 import fileUpload from "express-fileupload";
 import path from "path";
 import {connectDB} from "./lib/db.js";
@@ -8,7 +7,6 @@ import cors from "cors";
 import fs from "fs";
 import {createServer} from "http";
 import cron from "node-cron";
-
 import {initializeSocket} from "./lib/socket.js";
 
 import userRouter from "./routes/user.route.js";
@@ -17,9 +15,10 @@ import authRouter from "./routes/auth.route.js";
 import songRouter from "./routes/song.route.js";
 import albumRouter from "./routes/album.route.js";
 import statRouter from "./routes/stat.route.js";
+// import { clerkMiddleware } from "@clerk/express"; // Bỏ comment nếu dùng Clerk
 
 dotenv.config();
-const __dirname = path.resolve(); //to get the current directory path
+const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT;
 
@@ -33,16 +32,16 @@ app.use(
   })
 );
 
-app.use(express.json()); //to parse JSON bodies
-// app.use(clerkMiddleware()); //this will add auth to req obj => req.auth
+app.use(express.json());
+// app.use(clerkMiddleware()); // Bỏ comment nếu dùng Clerk
 app.use(
   fileUpload({
-    useTempFiles: true, //to store files in a temporary directory
-    tempFileDir: path.join(__dirname, "tmp"), //specify the temp directory
-    createParentPath: true, //to create parent directories if they don't exist
-    limits: {fileSize: 10 * 1024 * 1024}, //limit file size to 10MB
+    useTempFiles: true,
+    tempFileDir: path.join(__dirname, "tmp"),
+    createParentPath: true,
+    limits: {fileSize: 10 * 1024 * 1024},
   })
-); //to handle file uploads
+);
 
 // cron jobs
 const tempDir = path.join(process.cwd(), "tmp");
@@ -76,18 +75,15 @@ if (process.env.NODE_ENV === "production") {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error("Error occurred:", err);
   res.status(500).json({
     message:
       process.env.NODE_ENV === "production"
-        ? "Internal Server Error"
+        ? "Internal server error"
         : err.message,
   });
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log("Server is running on port " + PORT);
   connectDB();
 });
-
-
