@@ -12,7 +12,14 @@ const AuthCallbackPage = () => {
   useEffect(() => {
     const syncUser = async () => {
       try {
-        console.log("Effect run: isLoaded =", isLoaded, "user =", user, "syncAttempted =", syncAttempted.current);
+        console.log(
+          "Effect run: isLoaded =",
+          isLoaded,
+          "user =",
+          user,
+          "syncAttempted =",
+          syncAttempted.current
+        );
         if (!isLoaded || !user || syncAttempted.current) return;
 
         console.log("Sending POST /auth/callback");
@@ -29,6 +36,7 @@ const AuthCallbackPage = () => {
       } finally {
         console.log("Navigating to /");
         navigate("/");
+        window.location.reload();
       }
     };
 
