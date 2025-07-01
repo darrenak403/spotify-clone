@@ -74,6 +74,8 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+console.log("index.html exists:", fs.existsSync(path.join(__dirname, "../frontend/dist/index.html")));
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   res.status(500).json({
