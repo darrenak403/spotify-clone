@@ -76,6 +76,14 @@ app.use("/api/stats", statRouter);
 //   });
 // }
 
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "../frontend/dist"))); // dùng để phục vụ các tệp tĩnh
+
+    app.get("*", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html")); // gửi tệp index.html
+    })
+}
+
 console.log(
   "index.html exists:",
   fs.existsSync(path.join(__dirname, "../frontend/dist/index.html"))
