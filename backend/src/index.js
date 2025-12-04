@@ -30,6 +30,7 @@ app.use(
     origin: [
       "https://spotify-clone-v1-fqb8.onrender.com",
       "http://localhost:3000",
+      "https://spotifak.darrenak.id.vn/"
     ],
     credentials: true,
   })
