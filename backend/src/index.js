@@ -31,6 +31,7 @@ app.use(
       'https://spotify-clone-v1-fqb8.onrender.com',
       'http://localhost:3000',
       'https://spotifak.darrenak.id.vn',
+      'https://spotify-clone-server-fhgn.onrender.com',
     ],
     credentials: true,
   })
