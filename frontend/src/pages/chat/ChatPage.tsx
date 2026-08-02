@@ -1,5 +1,5 @@
 import {useChatStore} from '@/stores/useChatStore'
-import {useUser} from '@clerk/clerk-react'
+import {useAuth} from '@/providers/AuthProvider'
 import {useEffect, useRef} from 'react'
 import UsersList from './components/UsersList'
 import ChatHeader from './components/ChatHeader'
@@ -17,21 +17,18 @@ const formatTime = (date: string) => {
 }
 
 const ChatPage = () => {
-  const {user} = useUser()
-  const {messages, selectedUser, fetchUsers, fetchMessages, initSocket} = useChatStore()
+  const {user} = useAuth()
+  const {messages, selectedUser, fetchUsers, fetchMessages} = useChatStore()
 
   // Ref để scroll xuống cuối
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (user) {
-      initSocket(user.id)
-      fetchUsers()
-    }
-  }, [fetchUsers, user, initSocket])
+    if (user) fetchUsers()
+  }, [fetchUsers, user])
 
   useEffect(() => {
-    if (selectedUser) fetchMessages(selectedUser.clerkId)
+    if (selectedUser) fetchMessages(selectedUser._id)
   }, [selectedUser, fetchMessages])
 
   // Tự động scroll xuống cuối khi có tin nhắn mới
@@ -58,20 +55,20 @@ const ChatPage = () => {
                     <div
                       key={message._id}
                       className={`flex items-start gap-3 ${
-                        message.senderId === user?.id ? 'flex-row-reverse' : ''
+                        message.senderId === user?._id ? 'flex-row-reverse' : ''
                       }`}
                     >
                       <Avatar className="size-8">
                         <AvatarImage
                           src={
-                            message.senderId === user?.id ? user.imageUrl : selectedUser.imageUrl
+                            message.senderId === user?._id ? user.imageUrl : selectedUser.imageUrl
                           }
                         />
                       </Avatar>
 
                       <div
                         className={`rounded-lg p-3 max-w-[70%]
-													${message.senderId === user?.id ? 'bg-green-500' : 'bg-zinc-800'}
+													${message.senderId === user?._id ? 'bg-green-500' : 'bg-zinc-800'}
 												`}
                       >
                         <p className="text-sm">{message.content}</p>

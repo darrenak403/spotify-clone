@@ -15,7 +15,7 @@ interface ChatStore {
 	selectedUser: User | null;
 
 	fetchUsers: () => Promise<void>;
-	initSocket: (userId: string) => void;
+	initSocket: (userId: string, sessionToken: string) => void;
 	disconnectSocket: () => void;
 	sendMessage: (receiverId: string, senderId: string, content: string) => void;
 	fetchMessages: (userId: string) => Promise<void>;
@@ -56,9 +56,11 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 		}
 	},
 
-	initSocket: (userId) => {
+	initSocket: (userId, sessionToken) => {
 		if (!get().isConnected) {
-			socket.auth = { userId };
+			// Socket handshake uses the backend session token (Phase 2/3), never
+			// the Firebase ID token.
+			socket.auth = { token: sessionToken };
 			socket.connect();
 
 			socket.emit("user_connected", userId);

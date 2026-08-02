@@ -5,11 +5,11 @@ const messageSchema = new mongoose.Schema(
     senderId: {
       type: String,
       required: true,
-    }, //clerkId of the user who sent the message
+    }, // Mongo _id of the user who sent the message
     receiverId: {
       type: String,
       required: true,
-    }, //clerkId of the user who received the message
+    }, // Mongo _id of the user who received the message
     content: {
       type: String,
       required: true,

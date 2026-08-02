@@ -1,9 +1,31 @@
 import {axiosInstance} from "@/lib/axios";
+import {auth, googleProvider} from "@/lib/firebase";
 import {useAuthStore} from "@/stores/useAuthStore";
 import {useChatStore} from "@/stores/useChatStore";
-import {useAuth} from "@clerk/clerk-react";
+import type {User as DbUser} from "@/types";
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+  type User as FirebaseUser,
+} from "firebase/auth";
 import {Loader} from "lucide-react";
-import {useEffect, useState} from "react";
+import {createContext, useContext, useEffect, useState} from "react";
+
+interface AuthContextValue {
+  firebaseUser: FirebaseUser | null;
+  user: DbUser | null;
+  signInWithGoogle: () => Promise<void>;
+  signOutUser: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+};
 
 const updateApiToken = (token: string | null) => {
   if (token)
@@ -12,34 +34,59 @@ const updateApiToken = (token: string | null) => {
 };
 
 const AuthProvider = ({children}: {children: React.ReactNode}) => {
-  const {getToken, userId} = useAuth();
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<DbUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const {checkAdminStatus} = useAuthStore();
+  const {checkAdminStatus, reset: resetAuthStore} = useAuthStore();
   const {initSocket, disconnectSocket} = useChatStore();
 
   useEffect(() => {
-    const initAuth = async () => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       try {
-        const token = await getToken();
-        updateApiToken(token);
-        if (token) {
+        if (fbUser) {
+          // REST calls use the raw Firebase ID token (verified by the
+          // backend's verifyIdToken middleware) — never the session token.
+          const idToken = await fbUser.getIdToken();
+          updateApiToken(idToken);
+
+          const {data} = await axiosInstance.post("/auth/callback");
+          setUser(data.user);
+
           await checkAdminStatus();
-          // init socket
-          if (userId) initSocket(userId);
+
+          // Session token is scoped to the Socket.io handshake only.
+          const {data: sessionData} = await axiosInstance.post("/auth/session");
+          initSocket(data.user._id, sessionData.token);
+        } else {
+          updateApiToken(null);
+          setUser(null);
+          resetAuthStore();
+          disconnectSocket();
         }
-      } catch (error: any) {
+        setFirebaseUser(fbUser);
+      } catch (error) {
+        console.error("Error in auth provider", error);
         updateApiToken(null);
-        console.log("Error in auth provider", error);
+        setUser(null);
       } finally {
         setLoading(false);
       }
+    });
+
+    return () => {
+      unsubscribe();
+      disconnectSocket();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    initAuth();
+  const signInWithGoogle = async () => {
+    await signInWithPopup(auth, googleProvider);
+  };
 
-    // clean up
-    return () => disconnectSocket();
-  }, [getToken, userId, checkAdminStatus, initSocket, disconnectSocket]);
+  const signOutUser = async () => {
+    await signOut(auth);
+  };
 
   if (loading)
     return (
@@ -48,6 +95,10 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
       </div>
     );
 
-  return <>{children}</>;
+  return (
+    <AuthContext.Provider value={{firebaseUser, user, signInWithGoogle, signOutUser}}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 export default AuthProvider;

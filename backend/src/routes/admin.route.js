@@ -1,5 +1,5 @@
 import {Router} from "express";
-import {protectRoute, requireAdmin} from "../middleware/auth.middleware.js";
+import {verifyFirebaseToken, requireFirebaseAdmin} from "../middleware/firebaseAuth.middleware.js";
 import {
   checkAdmin,
   createAlbum,
@@ -10,7 +10,7 @@ import {
 
 const router = Router();
 
-router.use(protectRoute, requireAdmin); // Apply protectRoute middleware to all admin routes
+router.use(verifyFirebaseToken, requireFirebaseAdmin);
 
 router.get("/check", checkAdmin);
 router.post("/songs", createSong);

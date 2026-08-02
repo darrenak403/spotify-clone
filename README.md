@@ -23,7 +23,7 @@ This project is a personal learning and exploration exercise inspired by Spotify
 - **TypeScript**  
 - **Tailwind CSS**  
 - **Radix UI**  
-- **Clerk**  
+- **Firebase Authentication**  
 - **React Router DOM**  
 - **Socket.io-client**  
 - **Zustand**  
@@ -40,7 +40,39 @@ This project is a personal learning and exploration exercise inspired by Spotify
 - **dotenv**  
 - **CORS**  
 - **express-fileupload**  
-- **Clerk (express)**
+- **Firebase Admin SDK**
 - **Jwts**
 - **Socket.io**  
 - **node-cron**  
+
+---
+
+## 🔐 Environment Variables
+
+### Backend (Render)
+| Variable | Description |
+| --- | --- |
+| `MONGODB_URI` | MongoDB connection string |
+| `PORT` | Server port (Render sets this automatically) |
+| `FIREBASE_PROJECT_ID` | Firebase project id, from the service account JSON |
+| `FIREBASE_CLIENT_EMAIL` | Firebase service account client email |
+| `FIREBASE_PRIVATE_KEY` | Firebase service account private key. Paste with literal `\n` escapes for newlines — the app normalizes them at startup (`backend/src/lib/firebaseAdmin.js`) |
+| `SESSION_JWT_SECRET` | Secret used to sign the short-lived session JWT issued by `POST /api/auth/session`, consumed only by the Socket.io handshake |
+| `ADMIN_EMAIL` | Email of the account to grant the `admin` custom claim to, used by `npm run set-admin-claim` (one-time script, run locally against the target Firebase project) |
+| `CLOUDINARY_*` | Cloudinary credentials (unchanged) |
+
+### Frontend (Vercel)
+| Variable | Description |
+| --- | --- |
+| `VITE_REACT_APP_BACKEND_URL` | Deployed backend base URL, used for REST + Socket.io |
+| `VITE_FIREBASE_API_KEY` | Firebase web app config |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Firebase web app config |
+| `VITE_FIREBASE_PROJECT_ID` | Firebase web app config |
+| `VITE_FIREBASE_APP_ID` | Firebase web app config |
+
+No Clerk-related environment variables (e.g. `VITE_CLERK_PUBLISHABLE_KEY`) are needed anymore — remove them from any `.env` files and from the Render/Vercel dashboards.
+
+### Deployment notes
+- **CORS**: the backend's allow-list (`backend/src/index.js`) must include the deployed Vercel origin(s), separate from the next point.
+- **Firebase Authorized domains**: in the Firebase Console under Authentication → Settings → Authorized domains, add the deployed Vercel origin(s). This is required for `signInWithPopup` to complete — a CORS fix alone does not cover this and its absence surfaces as `auth/unauthorized-domain`.
+- After deploying, verify the backend logs show the Firebase Admin credentials parsed correctly (no "does not look like a valid PEM key" warning) before considering the deploy complete.

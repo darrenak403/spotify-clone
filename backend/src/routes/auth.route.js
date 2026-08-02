@@ -1,9 +1,10 @@
 import {Router} from "express";
-// import User from "../models/user.model.js"; // Assuming you have a User model defined
-import {authCallback} from "../controller/auth.controller.js";
+import {verifyFirebaseToken} from "../middleware/firebaseAuth.middleware.js";
+import {authCallback, createSession} from "../controller/auth.controller.js";
 
 const router = Router();
 
-router.post("/callback", authCallback);
+router.post("/callback", verifyFirebaseToken, authCallback);
+router.post("/session", verifyFirebaseToken, createSession);
 
 export default router;

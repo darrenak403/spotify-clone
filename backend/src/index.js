@@ -15,7 +15,6 @@ import authRouter from './routes/auth.route.js'
 import songRouter from './routes/song.route.js'
 import albumRouter from './routes/album.route.js'
 import statRouter from './routes/stat.route.js'
-// import { clerkMiddleware } from "@clerk/express"; // Bỏ comment nếu dùng Clerk
 
 dotenv.config()
 const __dirname = path.resolve()
@@ -38,7 +37,6 @@ app.use(
 )
 
 app.use(express.json())
-// app.use(clerkMiddleware()); // Bỏ comment nếu dùng Clerk
 app.use(
   fileUpload({
     useTempFiles: true,

@@ -1,9 +1,10 @@
 import {Router} from "express";
-import {protectRoute} from "../middleware/auth.middleware.js";
+import {verifyFirebaseToken} from "../middleware/firebaseAuth.middleware.js";
+import {attachDbUser} from "../middleware/dbUser.middleware.js";
 import {getAllUsers, getMessages} from "../controller/user.controller.js";
 const router = Router();
 
-router.get("/", protectRoute, getAllUsers);
-router.get("/messages/:userId", protectRoute, getMessages);
+router.get("/", verifyFirebaseToken, attachDbUser, getAllUsers);
+router.get("/messages/:userId", verifyFirebaseToken, attachDbUser, getMessages);
 
 export default router;

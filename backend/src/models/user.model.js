@@ -8,12 +8,18 @@ const userSchema = new mongoose.Schema(
     },
     imageUrl: {
       type: String,
-      required: true,
+      default: "",
     },
-    clerkId: {
+    // Firebase UID — the active lookup key for all new sign-ins.
+    firebaseUid: {
       type: String,
-      required: true,
-      unique: true, // Ensure clerkId is unique
+      unique: true,
+      sparse: true, // allows legacy Clerk-only records (no firebaseUid yet) to coexist
+    },
+    // Legacy Clerk user id — read-only history, no longer used for lookups.
+    legacyClerkId: {
+      type: String,
+      sparse: true,
     },
   },
   {timestamps: true}
