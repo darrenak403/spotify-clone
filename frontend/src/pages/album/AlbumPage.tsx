@@ -1,5 +1,6 @@
 import {Button} from "@/components/ui/button";
 import {ScrollArea} from "@/components/ui/scroll-area";
+import {getOptimizedImageUrl} from "@/lib/getOptimizedImageUrl";
 import {useMusicStore} from "@/stores/useMusicStore";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import {Clock, Pause, Play} from "lucide-react";
@@ -57,8 +58,13 @@ const AlbumPage = () => {
           <div className="relative z-10">
             <div className="flex p-6 gap-6 pb-8">
               <img
-                src={currentAlbum?.imageUrl}
+                src={
+                  currentAlbum?.imageUrl
+                    ? getOptimizedImageUrl(currentAlbum.imageUrl)
+                    : currentAlbum?.imageUrl
+                }
                 alt={currentAlbum?.title}
+                loading="lazy"
                 className="w-[240px] h-[240px] shadow-xl rounded"
               />
               <div className="flex flex-col justify-end">
@@ -137,8 +143,9 @@ const AlbumPage = () => {
 
                         <div className="flex items-center gap-3">
                           <img
-                            src={song.imageUrl}
+                            src={getOptimizedImageUrl(song.imageUrl)}
                             alt={song.title}
+                            loading="lazy"
                             className="size-10"
                           />
 

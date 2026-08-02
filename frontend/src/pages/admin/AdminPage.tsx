@@ -12,13 +12,14 @@ import {useMusicStore} from "@/stores/useMusicStore";
 const AdminPage = () => {
   const {isAdmin, isLoading} = useAuthStore();
 
-  const {fetchAlbums, fetchSongs, fetchStats} = useMusicStore();
+  // fetchAlbums (full list) is kept here for AddSongDialog's album picker —
+  // SongTable/AlbumsTable use their own separate paginated fetch instead.
+  const {fetchAlbums, fetchStats} = useMusicStore();
 
   useEffect(() => {
     fetchAlbums();
-    fetchSongs();
     fetchStats();
-  }, [fetchAlbums, fetchSongs, fetchStats]);
+  }, [fetchAlbums, fetchStats]);
   if (!isAdmin && !isLoading) {
     return <div>Unauthorized</div>;
   }

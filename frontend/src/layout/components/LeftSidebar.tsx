@@ -4,6 +4,7 @@ import {ScrollArea} from "@/components/ui/scroll-area";
 import {cn} from "@/lib/utils";
 import {useMusicStore} from "@/stores/useMusicStore";
 import {useAuth} from "@/providers/AuthProvider";
+import {getOptimizedImageUrl} from "@/lib/getOptimizedImageUrl";
 import {HomeIcon, Library, MessageCircle} from "lucide-react";
 import {useEffect} from "react";
 import {Link} from "react-router-dom";
@@ -71,8 +72,9 @@ const LeftSidebar = () => {
                   className="p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer"
                 >
                   <img
-                    src={album.imageUrl}
+                    src={getOptimizedImageUrl(album.imageUrl)}
                     alt="Playlist img"
+                    loading="lazy"
                     className="size-12 rounded-md flex-shrink-0 object-cover"
                   />
 

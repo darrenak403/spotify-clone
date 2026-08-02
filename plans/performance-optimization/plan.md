@@ -23,7 +23,7 @@ Red-team review found `backend/src/routes/song.route.js` and `backend/src/routes
 - [x] Phase 1: Backend quick wins — in-memory caching for home-page aggregations + gzip compression
 - [x] Phase 2: Frontend quick wins — route code-splitting, vendor chunking, parallelized auth-init, bundle analyzer
 - [x] Phase 3: Backend scalability — pagination, schema indexes, `.lean()` reads on song/album endpoints
-- [ ] Phase 4: Frontend list/image/search polish — "load more" UI on admin tables only, Cloudinary transforms + lazy images, client-side debounced search filter, `React.memo`
+- [x] Phase 4: Frontend list/image/search polish — "load more" UI on admin tables only, Cloudinary transforms + lazy images, client-side debounced search filter, `React.memo`
 
 ## Research Summary
 
@@ -63,9 +63,9 @@ Two parallel researchers confirmed the exact current code paths and settled all 
 ## Session Notes
 <!-- Updated by cook automatically — do not edit manually -->
 
-**Last active:** 2026-08-03 02:00
-**Phase in progress:** phase-04-frontend-load-more-images-search-memo
-**Status:** Phase 1, 2, and 3 complete, reviewed, and committed. Moving to Phase 4.
+**Last active:** 2026-08-03 03:00
+**Phase in progress:** none — all 4 phases complete
+**Status:** All phases (1-4) complete, reviewed, and committed.
 
 ### Decisions made this session
 - Phase 1: `node-cache` singleton (`homeQueryCache`, `stdTTL: 90`) exported from `song.controller.js`, imported by `admin.controller.js` for `.flushAll()` on all 4 existing mutation routes (createSong/deleteSong/createAlbum/deleteAlbum — confirmed these are the only write routes).
@@ -82,5 +82,9 @@ Two parallel researchers confirmed the exact current code paths and settled all 
 - Confirmed via code-reviewer: `getAllSongs` is already admin-gated (`verifyFirebaseToken`/`requireFirebaseAdmin` in `song.route.js`) — the plan's "public, unauthenticated" risk note applies accurately to the album endpoints only; clamping `getAllSongs` too is harmless defense-in-depth. `.lean()` confirmed safe via grep — no instance methods/virtuals/`.save()` called on results from these three queries anywhere in the codebase.
 - DB-level verification (curl diffs, confirming indexes registered via `db.songs.getIndexes()`) not possible this session — no real MongoDB URI available (same permission boundary noted in every phase so far). Verified instead via: `node --check` syntax pass on all 4 touched files, server boot (`node src/index.js` → "Server is running on port 5000", only the expected Mongo-URI-missing error follows), and static code-reviewer pass (WARNING → fixed → clean).
 
+- Phase 4: added new `paginatedSongs`/`paginatedAlbums` state + `fetchSongsPage`/`fetchAlbumsPage` actions to `useMusicStore.ts` (separate from the existing full-list `fetchSongs`/`fetchAlbums`, which stay untouched for `LeftSidebar.tsx`); `SongTable.tsx`/`AlbumsTable.tsx` rewritten to self-fetch their own first page, show a "Load More" button, and filter client-side via a new `useDebounce` hook (300ms, no backend search endpoint); new `getOptimizedImageUrl.ts` helper inserts `f_auto,q_auto/` into Cloudinary URLs, applied with `loading="lazy"` across `LeftSidebar.tsx`/`SectionGrid.tsx`/`AlbumPage.tsx`/`PlaybackControls.tsx`/`SongTable.tsx`/`AlbumsTable.tsx`; `SectionGrid.tsx`/`SongTable.tsx`/`AlbumsTable.tsx` wrapped in `React.memo`.
+- code-reviewer found one HIGH regression: removing `AdminPage.tsx`'s mount-time `fetchAlbums()`/`fetchSongs()` calls (done on the assumption nothing else needed them) silently broke `AddSongDialog.tsx`'s album-picker dropdown, which reads the plain `albums` field that only `AdminPage`'s mount effect (or `LeftSidebar.tsx`, not reliably mounted in the admin flow) ever populated. Fixed by restoring `fetchAlbums()` in `AdminPage.tsx` (confirmed via grep that nothing else needs the full `songs` list, so that one stays removed) — the full-list `fetchAlbums` and the new paginated `fetchAlbumsPage` coexist safely since they write to different store fields.
+- Verified via `npx tsc -b` (clean) and `npx vite build` (clean, chunk sizes essentially unchanged). Full in-browser manual verification (Load More network calls, image lazy-loading inspection, search debounce timing, React DevTools profiling) not possible this session — same missing-real-credentials/no-live-DB permission boundary noted in every phase.
+
 ### Next immediate action
-Implement Phase 4: new `fetchSongsPage`/`fetchAlbumsPage` store actions, "Load More" UI scoped to `SongTable.tsx`/`AlbumsTable.tsx`, Cloudinary `getOptimizedImageUrl` transform + `loading="lazy"` on image-rendering components, a client-side `useDebounce` search filter, and `React.memo` on list components, per `phase-04-frontend-load-more-images-search-memo.md`.
+All 4 phases complete. Remaining: `ck:cook` Step 5 Finalize (project-manager status sync, docs-manager doc check, git-manager final confirmation) — per-phase commits already cover the actual code changes.

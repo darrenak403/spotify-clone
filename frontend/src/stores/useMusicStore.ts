@@ -3,6 +3,8 @@ import type { Album, Song, Stats } from '@/types';
 import toast from 'react-hot-toast';
 import { create } from 'zustand';
 
+const ADMIN_PAGE_SIZE = 20;
+
 interface MusicStore {
     songs: Song[];
     albums: Album[];
@@ -14,6 +16,15 @@ interface MusicStore {
     trendingSongs: Song[]; // Assuming you have a trendingSongs array
     stats: Stats;
 
+    // Paginated state for admin tables only — separate from `songs`/`albums`,
+    // which stay full-list for LeftSidebar and other existing consumers.
+    paginatedSongs: Song[];
+    paginatedAlbums: Album[];
+    hasMoreSongs: boolean;
+    hasMoreAlbums: boolean;
+    isLoadingMoreSongs: boolean;
+    isLoadingMoreAlbums: boolean;
+
     fetchAlbums: () => Promise<void>;
     fetchAlbumById: (id: string) => Promise<void>;
     fetchFeaturedSongs: () => Promise<void>;
@@ -21,11 +32,13 @@ interface MusicStore {
     fetchTrendingSongs: () => Promise<void>;
     fetchStats: () => Promise<void>;
     fetchSongs: () => Promise<void>;
+    fetchSongsPage: (reset?: boolean) => Promise<void>;
+    fetchAlbumsPage: (reset?: boolean) => Promise<void>;
     deleteSong: (id: string) => Promise<void>;
     deleteAlbum: (id: string) => Promise<void>; // Optional if you want to implement album deletion
 }
 
-export const useMusicStore = create<MusicStore>((set) => ({
+export const useMusicStore = create<MusicStore>((set, get) => ({
     albums: [],
     songs: [],
     isLoading: false,
@@ -40,6 +53,12 @@ export const useMusicStore = create<MusicStore>((set) => ({
         totalArtists: 0,
         totalUsers: 0,
     },
+    paginatedSongs: [],
+    paginatedAlbums: [],
+    hasMoreSongs: true,
+    hasMoreAlbums: true,
+    isLoadingMoreSongs: false,
+    isLoadingMoreAlbums: false,
 
    deleteSong: async (id) => {
 		set({ isLoading: true, error: null });
@@ -48,6 +67,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
 
 			set((state) => ({
 				songs: state.songs.filter((song) => song._id !== id),
+				paginatedSongs: state.paginatedSongs.filter((song) => song._id !== id),
 			}));
 			toast.success("Song deleted successfully");
 		} catch (error: any) {
@@ -57,13 +77,14 @@ export const useMusicStore = create<MusicStore>((set) => ({
 			set({ isLoading: false });
 		}
 	},
-    
+
     deleteAlbum: async (id) => {
 		set({ isLoading: true, error: null });
 		try {
 			await axiosInstance.delete(`/admin/albums/${id}`);
 			set((state) => ({
 				albums: state.albums.filter((album) => album._id !== id),
+				paginatedAlbums: state.paginatedAlbums.filter((album) => album._id !== id),
 				songs: state.songs.map((song) =>
 					song.albumId === state.albums.find((a) => a._id === id)?.title ? { ...song, album: null } : song
 				),
@@ -75,6 +96,46 @@ export const useMusicStore = create<MusicStore>((set) => ({
 			set({ isLoading: false });
 		}
 	},
+
+    fetchSongsPage: async (reset = false) => {
+        const { paginatedSongs } = get();
+        const skip = reset ? 0 : paginatedSongs.length;
+        set({ isLoadingMoreSongs: true, error: null });
+        try {
+            const response = await axiosInstance.get(
+                `/songs?limit=${ADMIN_PAGE_SIZE}&skip=${skip}`
+            );
+            const nextSongs: Song[] = response.data;
+            set((state) => ({
+                paginatedSongs: reset ? nextSongs : [...state.paginatedSongs, ...nextSongs],
+                hasMoreSongs: nextSongs.length === ADMIN_PAGE_SIZE,
+            }));
+        } catch (error: any) {
+            set({ error: error.message });
+        } finally {
+            set({ isLoadingMoreSongs: false });
+        }
+    },
+
+    fetchAlbumsPage: async (reset = false) => {
+        const { paginatedAlbums } = get();
+        const skip = reset ? 0 : paginatedAlbums.length;
+        set({ isLoadingMoreAlbums: true, error: null });
+        try {
+            const response = await axiosInstance.get(
+                `/albums?limit=${ADMIN_PAGE_SIZE}&skip=${skip}`
+            );
+            const nextAlbums: Album[] = response.data;
+            set((state) => ({
+                paginatedAlbums: reset ? nextAlbums : [...state.paginatedAlbums, ...nextAlbums],
+                hasMoreAlbums: nextAlbums.length === ADMIN_PAGE_SIZE,
+            }));
+        } catch (error: any) {
+            set({ error: error.message });
+        } finally {
+            set({ isLoadingMoreAlbums: false });
+        }
+    },
 
     fetchSongs: async () => {
         set({ isLoading: true, error: null });

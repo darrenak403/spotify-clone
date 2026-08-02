@@ -1,5 +1,6 @@
 import {Button} from "@/components/ui/button";
 import {Slider} from "@/components/ui/slider";
+import {getOptimizedImageUrl} from "@/lib/getOptimizedImageUrl";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import {
   Laptop2,
@@ -69,8 +70,9 @@ export const PlaybackControls = () => {
           {currentSong && (
             <>
               <img
-                src={currentSong.imageUrl}
+                src={getOptimizedImageUrl(currentSong.imageUrl)}
                 alt={currentSong.title}
+                loading="lazy"
                 className="w-14 h-14 object-cover rounded-md"
               />
               <div className="flex-1 min-w-0">
