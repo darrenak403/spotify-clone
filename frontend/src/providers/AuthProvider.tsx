@@ -52,10 +52,14 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
           const {data} = await axiosInstance.post("/auth/callback");
           setUser(data.user);
 
-          await checkAdminStatus();
+          // Independent of each other — both only need the already-resolved
+          // idToken/data.user from the callback above, so run them together.
+          const [, {data: sessionData}] = await Promise.all([
+            checkAdminStatus(),
+            axiosInstance.post("/auth/session"),
+          ]);
 
           // Session token is scoped to the Socket.io handshake only.
-          const {data: sessionData} = await axiosInstance.post("/auth/session");
           initSocket(data.user._id, sessionData.token);
         } else {
           updateApiToken(null);

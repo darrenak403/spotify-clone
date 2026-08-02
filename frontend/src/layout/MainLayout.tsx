@@ -8,7 +8,14 @@ import LeftSidebar from "./components/LeftSidebar";
 import FriendActivity from "./components/FriendActivity";
 import AudioPlayer from "./components/AudioPlayer";
 import {PlaybackControls} from "./components/PlaybackControls";
-import {useEffect, useState} from "react";
+import {Suspense, useEffect, useState} from "react";
+import {Loader} from "lucide-react";
+
+const PageLoader = () => (
+  <div className="h-full w-full flex items-center justify-center">
+    <Loader className="size-8 text-emerald-500 animate-spin" />
+  </div>
+);
 
 const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(false); // Replace with actual mobile detection logic
@@ -45,7 +52,9 @@ const MainLayout = () => {
 
         {/* Main content */}
         <ResizablePanel defaultSize={isMobile ? 80 : 60}>
-          <Outlet />
+          <Suspense fallback={<PageLoader />}>
+            <Outlet />
+          </Suspense>
         </ResizablePanel>
 
         {!isMobile && (

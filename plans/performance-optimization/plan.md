@@ -21,7 +21,7 @@ Red-team review found `backend/src/routes/song.route.js` and `backend/src/routes
 ## Phases
 
 - [x] Phase 1: Backend quick wins — in-memory caching for home-page aggregations + gzip compression
-- [ ] Phase 2: Frontend quick wins — route code-splitting, vendor chunking, parallelized auth-init, bundle analyzer
+- [x] Phase 2: Frontend quick wins — route code-splitting, vendor chunking, parallelized auth-init, bundle analyzer
 - [ ] Phase 3: Backend scalability — pagination, schema indexes, `.lean()` reads on song/album endpoints
 - [ ] Phase 4: Frontend list/image/search polish — "load more" UI on admin tables only, Cloudinary transforms + lazy images, client-side debounced search filter, `React.memo`
 
@@ -63,9 +63,9 @@ Two parallel researchers confirmed the exact current code paths and settled all 
 ## Session Notes
 <!-- Updated by cook automatically — do not edit manually -->
 
-**Last active:** 2026-08-03 00:00
-**Phase in progress:** phase-02-frontend-code-splitting-auth-parallel
-**Status:** Phase 1 complete, reviewed, and committed. Moving to Phase 2.
+**Last active:** 2026-08-03 01:00
+**Phase in progress:** phase-03-backend-pagination-indexing
+**Status:** Phase 1 and Phase 2 complete, reviewed, and committed. Moving to Phase 3.
 
 ### Decisions made this session
 - Phase 1: `node-cache` singleton (`homeQueryCache`, `stdTTL: 90`) exported from `song.controller.js`, imported by `admin.controller.js` for `.flushAll()` on all 4 existing mutation routes (createSong/deleteSong/createAlbum/deleteAlbum — confirmed these are the only write routes).
@@ -73,6 +73,9 @@ Two parallel researchers confirmed the exact current code paths and settled all 
 - `compression()` added right after `cors()`, before `express.json()`.
 - code-reviewer found one pre-existing (not introduced by this phase) HIGH bug adjacent to the new code: `deleteSong` dereferenced `song.albumId` without a null check when `id` doesn't match any document. Fixed with a 404 guard while in the function.
 - Manual DB-backed endpoint verification (curl diff, cache timing) not possible in this session — no real MongoDB URI available (same permission boundary as the Firebase migration). Verified instead via: server boots cleanly (`node src/index.js` → "Server is running on port 5000"), `node --check` syntax pass on all 3 touched files, and static code-reviewer pass (WARNING → fixed → clean).
+- Phase 2: `App.tsx` routes converted to `React.lazy()`; `vite.config.ts` given `manualChunks` (firebase, vendor-react, vendor-ui, socket-io) plus an `ANALYZE`-gated `rollup-plugin-visualizer`; `AuthProvider.tsx`'s `checkAdminStatus()` and `POST /auth/session` wrapped in `Promise.all` (confirmed independent — neither reads the other's response, both only need the already-resolved ID token/`/auth/callback` result).
+- code-reviewer found one HIGH UX regression introduced by this phase: a single top-level `<Suspense>` wrapping the whole `<Routes>` tree unmounted `MainLayout` (sidebar/topbar) on every navigation between lazy routes nested under it, since Suspense replaces its entire subtree including already-mounted parents. Fixed by moving the `<Suspense>` boundary to wrap only `<Outlet/>` inside `MainLayout.tsx` (new `PageLoader` fallback, layout persists across nested route changes) and giving `/admin` its own separate `<Suspense>` in `App.tsx` (no shared layout to preserve there).
+- Verified via `npx tsc -b && npx vite build` (unchanged correct per-route/per-vendor chunk output) and `ANALYZE=true npx vite build` (confirms `dist/stats.html` generation). Functional in-browser navigation/auth end-to-end test not possible in this session (same missing-real-credentials permission boundary as Phase 1's DB verification).
 
 ### Next immediate action
-Implement Phase 2: `React.lazy`/`Suspense` route splitting in `App.tsx`, `manualChunks` in `vite.config.ts`, `Promise.all` around `checkAdminStatus`/session in `AuthProvider.tsx`, `rollup-plugin-visualizer` wired to an `analyze` script.
+Implement Phase 3: pagination (`limit`/`skip`, clamped ≤100, "no `limit` → return all"), 5 Mongoose indexes, and `.lean()` reads on `song.controller.js`'s `getAllSongs` and `album.controller.js`'s `getAllAlbums`/`getAlbumById`, per `phase-03-backend-pagination-indexing.md`.
