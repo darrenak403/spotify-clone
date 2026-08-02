@@ -1,0 +1,33 @@
+# Claude IDE
+.claude/
+
+# Codex
+.ck.json
+.mcp.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE/Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+/.claude/
+/.ck.json
+/.mcp.json
