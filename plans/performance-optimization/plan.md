@@ -22,7 +22,7 @@ Red-team review found `backend/src/routes/song.route.js` and `backend/src/routes
 
 - [x] Phase 1: Backend quick wins — in-memory caching for home-page aggregations + gzip compression
 - [x] Phase 2: Frontend quick wins — route code-splitting, vendor chunking, parallelized auth-init, bundle analyzer
-- [ ] Phase 3: Backend scalability — pagination, schema indexes, `.lean()` reads on song/album endpoints
+- [x] Phase 3: Backend scalability — pagination, schema indexes, `.lean()` reads on song/album endpoints
 - [ ] Phase 4: Frontend list/image/search polish — "load more" UI on admin tables only, Cloudinary transforms + lazy images, client-side debounced search filter, `React.memo`
 
 ## Research Summary
@@ -63,9 +63,9 @@ Two parallel researchers confirmed the exact current code paths and settled all 
 ## Session Notes
 <!-- Updated by cook automatically — do not edit manually -->
 
-**Last active:** 2026-08-03 01:00
-**Phase in progress:** phase-03-backend-pagination-indexing
-**Status:** Phase 1 and Phase 2 complete, reviewed, and committed. Moving to Phase 3.
+**Last active:** 2026-08-03 02:00
+**Phase in progress:** phase-04-frontend-load-more-images-search-memo
+**Status:** Phase 1, 2, and 3 complete, reviewed, and committed. Moving to Phase 4.
 
 ### Decisions made this session
 - Phase 1: `node-cache` singleton (`homeQueryCache`, `stdTTL: 90`) exported from `song.controller.js`, imported by `admin.controller.js` for `.flushAll()` on all 4 existing mutation routes (createSong/deleteSong/createAlbum/deleteAlbum — confirmed these are the only write routes).
@@ -77,5 +77,10 @@ Two parallel researchers confirmed the exact current code paths and settled all 
 - code-reviewer found one HIGH UX regression introduced by this phase: a single top-level `<Suspense>` wrapping the whole `<Routes>` tree unmounted `MainLayout` (sidebar/topbar) on every navigation between lazy routes nested under it, since Suspense replaces its entire subtree including already-mounted parents. Fixed by moving the `<Suspense>` boundary to wrap only `<Outlet/>` inside `MainLayout.tsx` (new `PageLoader` fallback, layout persists across nested route changes) and giving `/admin` its own separate `<Suspense>` in `App.tsx` (no shared layout to preserve there).
 - Verified via `npx tsc -b && npx vite build` (unchanged correct per-route/per-vendor chunk output) and `ANALYZE=true npx vite build` (confirms `dist/stats.html` generation). Functional in-browser navigation/auth end-to-end test not possible in this session (same missing-real-credentials permission boundary as Phase 1's DB verification).
 
+- Phase 3: added the 5 planned indexes (`song.model.js` x3, `album.model.js` x2); `getAllSongs`/`getAllAlbums` given `parseInt`-parsed, `Number.isInteger`-validated `limit`/`skip` with a `Math.min(limit,100)` clamp, applied only when a valid `limit` is present (absent/invalid → unchanged full-list behavior, matching the additive requirement); `.lean()` added to `getAllSongs`, `getAllAlbums`, and `getAlbumById`'s `populate("songs")` query.
+- code-reviewer found one HIGH bug: `limit=0` satisfied `Number.isInteger(limit) && limit >= 0` and reached `.limit(0)`, which Mongoose/MongoDB treat as "no limit" (not "zero results") — silently returning the full unbounded collection on the public, unauthenticated `/albums` endpoint, defeating the DoS-prevention requirement this phase exists for. Fixed by requiring `limit > 0` to enter the paginated branch; `limit=0` (and negative) now correctly falls through to the existing full-list behavior instead of bypassing the clamp.
+- Confirmed via code-reviewer: `getAllSongs` is already admin-gated (`verifyFirebaseToken`/`requireFirebaseAdmin` in `song.route.js`) — the plan's "public, unauthenticated" risk note applies accurately to the album endpoints only; clamping `getAllSongs` too is harmless defense-in-depth. `.lean()` confirmed safe via grep — no instance methods/virtuals/`.save()` called on results from these three queries anywhere in the codebase.
+- DB-level verification (curl diffs, confirming indexes registered via `db.songs.getIndexes()`) not possible this session — no real MongoDB URI available (same permission boundary noted in every phase so far). Verified instead via: `node --check` syntax pass on all 4 touched files, server boot (`node src/index.js` → "Server is running on port 5000", only the expected Mongo-URI-missing error follows), and static code-reviewer pass (WARNING → fixed → clean).
+
 ### Next immediate action
-Implement Phase 3: pagination (`limit`/`skip`, clamped ≤100, "no `limit` → return all"), 5 Mongoose indexes, and `.lean()` reads on `song.controller.js`'s `getAllSongs` and `album.controller.js`'s `getAllAlbums`/`getAlbumById`, per `phase-03-backend-pagination-indexing.md`.
+Implement Phase 4: new `fetchSongsPage`/`fetchAlbumsPage` store actions, "Load More" UI scoped to `SongTable.tsx`/`AlbumsTable.tsx`, Cloudinary `getOptimizedImageUrl` transform + `loading="lazy"` on image-rendering components, a client-side `useDebounce` search filter, and `React.memo` on list components, per `phase-04-frontend-load-more-images-search-memo.md`.

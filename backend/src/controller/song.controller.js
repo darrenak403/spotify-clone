@@ -9,7 +9,16 @@ export const getAllSongs = async (req, res, next) => {
   try {
     // -1 = descending order -> newest to oldest
     // 1 = ascending order -> oldest to newest
-    const songs = await Song.find().sort({createdAt: -1});
+    const limit = parseInt(req.query.limit, 10);
+    const skip = parseInt(req.query.skip, 10);
+
+    let query = Song.find().sort({createdAt: -1});
+    if (Number.isInteger(limit) && limit > 0) {
+      const validSkip = Number.isInteger(skip) && skip >= 0 ? skip : 0;
+      query = query.skip(validSkip).limit(Math.min(limit, 100));
+    }
+
+    const songs = await query.lean();
     res.json(songs);
   } catch (error) {
     console.error("Error in getAllSongs:", error);
