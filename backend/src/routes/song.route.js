@@ -5,11 +5,14 @@ import {
   getMadeForYouSongs,
   getTrendingSongs,
 } from "../controller/song.controller.js";
-import {protectRoute, requireAdmin} from "../middleware/auth.middleware.js";
+import {
+  verifyFirebaseToken,
+  requireFirebaseAdmin,
+} from "../middleware/firebaseAuth.middleware.js";
 
 const router = Router();
 
-router.get("/", protectRoute, requireAdmin, getAllSongs);
+router.get("/", verifyFirebaseToken, requireFirebaseAdmin, getAllSongs);
 router.get("/featured", getFeaturedSongs);
 router.get("/made-for-you", getMadeForYouSongs);
 router.get("/trending", getTrendingSongs);

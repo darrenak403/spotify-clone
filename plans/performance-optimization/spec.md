@@ -1,7 +1,7 @@
 # Spec: Performance Optimization
 
 **Date:** 2026-08-02
-**Status:** Draft
+**Status:** Ready
 
 ---
 
@@ -39,7 +39,10 @@ The app (Vite + React 19 frontend, Express + Mongoose/MongoDB backend) currently
 - **[P2]** As a user, I want song/album list rendering to avoid unnecessary re-renders, so that the UI stays smooth as the store updates.
   Accepted when: `SectionGrid.tsx`, `SongTable.tsx`, `AlbumsTable.tsx` (or their row sub-components) are wrapped in `React.memo` where profiling shows repeat re-renders.
 
-- **[P3]** _(out of scope for this round)_ Full infinite-scroll/virtualized UI for song and album lists — noted for a later pass once pagination lands on the backend.
+- **[P2]** As a user, I want song/album lists to load more items as I scroll instead of loading everything upfront, so that the initial list render is fast even as the dataset grows.
+  Accepted when: song/album list UI ("load more" or infinite scroll, not virtualized) consumes the Phase 2 `limit`/`skip` endpoints.
+
+- **[P3]** _(out of scope for this round)_ Full virtualized rendering (e.g. `react-window`) for song and album lists — infinite scroll ships this round, but windowed rendering is deferred.
 - **[P3]** _(out of scope for this round)_ Custom audio Range-request handling — confirmed unnecessary: audio is delivered via Cloudinary CDN, which supports HTTP Range/206 Partial Content by default. No backend streaming code needed.
 
 ---
@@ -55,10 +58,11 @@ The app (Vite + React 19 frontend, Express + Mongoose/MongoDB backend) currently
 7. FR-07 (Phase 2): Add pagination (`limit`/`skip` query params) to `Song.find()` in `song.controller.js` and `Album.find()` in `album.controller.js`.
 8. FR-08 (Phase 2): Add indexes to Mongoose schemas on fields used for sort/filter (`createdAt`, `artist`, `albumId`).
 9. FR-09 (Phase 2): Add `.lean()` to read-only Mongoose queries, including `populate()` calls in `album.controller.js`.
-10. FR-10 (Phase 2): Cache or short-circuit repeated `clerkClient.users.getUser()` calls in `admin.controller.js` per session.
+10. ~~FR-10 (Phase 2): Cache or short-circuit repeated Clerk user-lookup calls in `admin.controller.js` per session.~~ **Dropped** — obsolete after the Firebase Auth migration. `checkAdmin` now relies on the `admin` custom claim already verified once by `requireFirebaseAdmin` middleware; there is no repeated external API call left to cache.
 11. FR-11: Add `f_auto,q_auto` (or equivalent) Cloudinary transform to image delivery URLs used across `LeftSidebar.tsx`, `SectionGrid.tsx`, `AlbumPage.tsx`, `PlaybackControls.tsx`, `SongTable.tsx`, `AlbumsTable.tsx`.
 12. FR-12: Debounce the search input (~300ms) before it triggers the search API call.
 13. FR-13: Wrap re-render-prone list/row components (`SectionGrid.tsx`, `SongTable.tsx`, `AlbumsTable.tsx`) in `React.memo`.
+14. FR-14 (Phase 2): Add "load more" / infinite-scroll UI to song/album list views that consumes the `limit`/`skip` params added in FR-07, replacing the current full-list fetch-on-mount pattern.
 
 ---
 
@@ -67,7 +71,7 @@ The app (Vite + React 19 frontend, Express + Mongoose/MongoDB backend) currently
 <!-- Use numbers, not adjectives. "p95 latency < 500ms" not "fast" -->
 
 - Performance: Initial JS bundle size reduced by 30-40% vs. baseline (measured via bundle-analyzer). API response time for home-page queries reduced (measured via simple timing log, before/after).
-- Security: No change to auth/authorization behavior — caching and parallelization must not bypass existing Clerk auth checks.
+- Security: No change to auth/authorization behavior — caching and parallelization must not bypass existing Firebase Auth checks (`requireFirebaseAuth`/`requireFirebaseAdmin` middleware).
 - Availability: No breaking change to existing API response shapes in Phase 1 (quick wins); Phase 2 pagination change must be additive (`limit`/`skip` optional, defaulting to current full-list behavior) to avoid breaking the current frontend consumers until they're updated.
 
 ---
@@ -80,13 +84,14 @@ The app (Vite + React 19 frontend, Express + Mongoose/MongoDB backend) currently
 - [ ] All identified `<img>` tags updated with lazy loading.
 - [ ] AuthProvider init calls run in parallel (verified via code + reduced time-to-interactive).
 - [ ] (Phase 2) List endpoints (`/songs`, `/albums`) support `limit`/`skip` and return correctly bounded results; indexes present in schema definitions.
+- [ ] (Phase 2) Song/album list UI loads additional pages via "load more"/infinite scroll instead of fetching the full list on mount.
 
 ---
 
 ## Out of Scope
 
-- Full infinite-scroll/virtualized list UI on the frontend (noted as [P3] above — separate future spec).
-- Redis infrastructure setup if it doesn't already exist in the deployment environment (plan should default to simple in-memory caching unless Redis is confirmed available).
+- Full virtualized list rendering (e.g. `react-window`) — a simpler infinite-scroll / "load more" UI on top of Phase 2 pagination is in scope, but windowed/virtualized rendering is not.
+- Redis infrastructure setup — confirmed unavailable in the deployment environment; plan uses in-memory caching (`node-cache`).
 - Any redesign of the auth flow beyond parallelizing existing calls.
 
 ---
@@ -95,11 +100,11 @@ The app (Vite + React 19 frontend, Express + Mongoose/MongoDB backend) currently
 
 - Current dataset size (< ~500 songs/albums) means Phase 2 (pagination/indexing) is preparatory, not urgent — if this assumption is wrong (data about to grow fast), Phase 2 priority should move up.
 - No existing APM/monitoring tool is in place; a lightweight, code-level measurement approach (bundle analyzer + manual timing logs) is acceptable for this round rather than adopting a full observability platform.
-- Deployment environment for Redis is unconfirmed — plan should default to in-memory caching (e.g. `node-cache`) unless the user has Redis available.
+- Redis is confirmed unavailable in the deployment environment — plan uses in-memory caching (e.g. `node-cache`).
 
 ---
 
-## [NEEDS CLARIFICATION]
+## Resolved Clarifications
 
-- [ ] Confirm whether Redis is available in the deployment environment, or whether in-memory caching (lost on restart) is acceptable for the home-query cache.
-- [ ] Confirm whether Phase 2 pagination should ship with a corresponding frontend UI change (infinite scroll/pagination controls) in the same effort, or land backend-only first with `limit`/`skip` optional and unused by the current UI.
+- Redis is not available in the deployment environment; use in-memory caching (`node-cache`) for the home-query cache.
+- Phase 2 pagination ships together with a frontend UI change (infinite scroll / "load more" pagination) in the same effort, not backend-only.

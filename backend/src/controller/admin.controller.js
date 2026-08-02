@@ -1,6 +1,7 @@
 import Song from "../models/song.model.js";
 import Album from "../models/album.model.js";
 import cloudinary from "../lib/cloudinary.js"; //assuming you have a cloudinary config file
+import {homeQueryCache} from "./song.controller.js";
 
 //helper function to upload files to Cloudinary
 const uploadToCloudinary = async (file) => {
@@ -45,6 +46,9 @@ export const createSong = async (req, res, next) => {
     if (albumId) {
       await Album.findByIdAndUpdate(albumId, {$push: {songs: song._id}});
     }
+
+    homeQueryCache.flushAll();
+
     res.status(201).json({
       message: "Song created successfully",
       song,
@@ -60,12 +64,17 @@ export const deleteSong = async (req, res, next) => {
     const {id} = req.params._id || req.params.id || req.params;
 
     const song = await Song.findById(id);
+    if (!song) {
+      return res.status(404).json({message: "Song not found"});
+    }
 
     //if song belongs to an album, remove it from the album's songs array
     if (song.albumId) {
       await Album.findByIdAndUpdate(song.albumId, {$pull: {songs: song._id}});
     }
     await Song.findByIdAndDelete(id);
+
+    homeQueryCache.flushAll();
 
     res.status(200).json({
       message: "Song deleted successfully",
@@ -98,6 +107,8 @@ export const createAlbum = async (req, res, next) => {
 
     await album.save();
 
+    homeQueryCache.flushAll();
+
     res.status(201).json({
       message: "Album created successfully",
       album,
@@ -114,6 +125,9 @@ export const deleteAlbum = async (req, res, next) => {
     console.log("Album ID:", id);
     await Song.deleteMany({album: id}); //delete all songs in the album
     await Album.findByIdAndDelete(id);
+
+    homeQueryCache.flushAll();
+
     res.status(200).json({
       message: "Album deleted successfully",
     });

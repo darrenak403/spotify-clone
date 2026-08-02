@@ -4,6 +4,7 @@ import fileUpload from 'express-fileupload'
 import path from 'path'
 import {connectDB} from './lib/db.js'
 import cors from 'cors'
+import compression from 'compression'
 import fs from 'fs'
 import {createServer} from 'http'
 import cron from 'node-cron'
@@ -35,6 +36,7 @@ app.use(
     credentials: true,
   })
 )
+app.use(compression())
 
 app.use(express.json())
 app.use(
