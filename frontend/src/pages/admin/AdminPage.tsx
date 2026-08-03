@@ -1,3 +1,4 @@
+import {Navigate} from "react-router-dom";
 import {useAuthStore} from "@/stores/useAuthStore";
 import Header from "./components/Header";
 import DashboardStats from "./components/DashboardStats";
@@ -21,7 +22,7 @@ const AdminPage = () => {
     fetchStats();
   }, [fetchAlbums, fetchStats]);
   if (!isAdmin && !isLoading) {
-    return <div>Unauthorized</div>;
+    return <Navigate to="/" replace />;
   }
   return (
     <div
