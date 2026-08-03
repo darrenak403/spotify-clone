@@ -17,6 +17,7 @@ import songRouter from './routes/song.route.js'
 import albumRouter from './routes/album.route.js'
 import statRouter from './routes/stat.route.js'
 import artistRouter from './routes/artist.route.js'
+import {getSitemap} from './controller/sitemap.controller.js'
 
 dotenv.config()
 const __dirname = path.resolve()
@@ -63,6 +64,8 @@ cron.schedule('0 * * * *', () => {
 app.get('/api/health', (req, res) => {
   res.status(200).json({status: 'ok', timestamp: new Date().toISOString()})
 })
+
+app.get('/api/sitemap.xml', getSitemap)
 
 app.use('/api/users', userRouter)
 app.use('/api/admin', adminRouter)

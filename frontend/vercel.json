@@ -5,6 +5,10 @@
       "destination": "/api/redirect-album?id=:id"
     },
     {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
       "source": "/",
       "has": [
         {
