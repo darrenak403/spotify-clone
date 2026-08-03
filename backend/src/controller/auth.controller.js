@@ -1,27 +1,26 @@
 import jwt from "jsonwebtoken";
-import User from "../models/user.model.js";
+import {prisma} from "../lib/prisma.js";
+import {toClientShape} from "../lib/serialize.js";
 
 // Runs behind verifyFirebaseToken — identity is derived exclusively from the
 // verified token payload, never from client-supplied request-body fields.
-// findOneAndUpdate + upsert is atomic per document, so two near-simultaneous
-// first sign-ins from the same account cannot create duplicate user records.
+// upsert is atomic per row, so two near-simultaneous first sign-ins from the
+// same account cannot create duplicate user records.
 export const authCallback = async (req, res, next) => {
   try {
     const {uid, email, name, picture} = req.firebaseUser;
 
-    const user = await User.findOneAndUpdate(
-      {firebaseUid: uid},
-      {
-        $setOnInsert: {
-          firebaseUid: uid,
-          fullName: name || email || "Spotify User",
-          imageUrl: picture || "",
-        },
+    const user = await prisma.user.upsert({
+      where: {firebaseUid: uid},
+      update: {},
+      create: {
+        firebaseUid: uid,
+        fullName: name || email || "Spotify User",
+        imageUrl: picture || "",
       },
-      {upsert: true, new: true, setDefaultsOnInsert: true}
-    );
+    });
 
-    res.status(200).json({success: true, user});
+    res.status(200).json({success: true, user: toClientShape(user)});
   } catch (error) {
     console.error("Error in auth callback", error);
     next(error);
@@ -33,7 +32,9 @@ export const authCallback = async (req, res, next) => {
 // a substitute for the Firebase ID token on ordinary REST calls.
 export const createSession = async (req, res, next) => {
   try {
-    const user = await User.findOne({firebaseUid: req.firebaseUser.uid});
+    const user = await prisma.user.findUnique({
+      where: {firebaseUid: req.firebaseUser.uid},
+    });
     if (!user) {
       return res
         .status(404)
@@ -41,7 +42,7 @@ export const createSession = async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      {sub: user._id.toString(), firebaseUid: req.firebaseUser.uid},
+      {sub: user.id, firebaseUid: req.firebaseUser.uid},
       process.env.SESSION_JWT_SECRET,
       {expiresIn: "24h"}
     );

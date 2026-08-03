@@ -26,7 +26,7 @@ Replace the Mongoose/MongoDB data layer with Prisma Client against a Neon-hosted
 - [x] Phase 2: Catalog read controllers — Song & Album list/detail endpoints on Prisma, with UUID param validation
 - [x] Phase 3: Random-sampling helper & home-page endpoints — featured/made-for-you/trending songs
 - [x] Phase 4: Admin mutation controller — song/album create/delete, cache invalidation preserved, plus `stat.controller.js`'s `getStats` (uncovered by any other phase — flagged in red-team review)
-- [ ] Phase 5: Auth, user, and chat message persistence — auth callback/session, dbUser middleware, Socket.io message handler
+- [x] Phase 5: Auth, user, and chat message persistence — auth callback/session, dbUser middleware, Socket.io message handler
 - [ ] Phase 6: Seed scripts, deploy config & final verification pass
 
 ## Research Summary
@@ -81,5 +81,12 @@ Verified: syntax-checked all touched files; grepped and confirmed no leftover Mo
 - Code review caught a **CRITICAL pre-existing bug carried forward unexamined**: `deleteSong`'s old param-extraction line (`const {id} = req.params._id || req.params.id || req.params;`) always destructured off a string once Mongoose's leniency was gone, making `id` always `undefined` and the endpoint always 404 — this exact bug existed before the migration too (verified via git history) but was masked by looser Mongoose semantics; fixed to the same simple `const {id} = req.params;` pattern `deleteAlbum` already used correctly. This is exactly the pre-existing-quirk risk phase-04's plan file called out in advance.
 - Applied `toClientShape` to `createSong`/`createAlbum` responses (which return the created row) for the same `_id` parity reason established in Phase 2/3.
 
+**Phase 5 status:** Done. `auth.controller.js` (authCallback/createSession), `dbUser.middleware.js`, `user.controller.js` (getAllUsers/getMessages), and `socket.js`'s `send_message` handler rewritten against Prisma; `authCallback`'s find-or-create is now `prisma.user.upsert`; JWT `sub` claim embeds `user.id` (UUID) instead of the old ObjectId hex string, matching the plan's documented values-only-change risk.
+
+### Decisions made this session (Phase 5)
+- Code review caught a real **HIGH** gap: `socket.js`'s `send_message` handler passed client-supplied `senderId`/`receiverId` straight into `prisma.message.create` with no UUID guard (every other mutation site in this migration has one) — a malformed id would throw a raw Prisma error, and the handler's catch block was emitting `error.message` straight to the socket client, leaking internal error detail. Fixed: added an `isUuid` check before the Prisma call, and changed the catch to emit a generic `"Unable to send message"` string (full error still goes to `console.error` server-side).
+- Code review also noted a **MEDIUM**, accepted-as-is drift: `prisma.user.upsert`'s empty `update: {}` on `authCallback` still bumps `User.updatedAt` on every repeat sign-in (Prisma's `@updatedAt` auto-populates on any `update` call, even an empty one), whereas the old `$setOnInsert`-only Mongoose query left the row fully untouched on a match. Not a functional bug — `fullName`/`imageUrl` are correctly never overwritten — just a timestamp-housekeeping difference, left as-is rather than working around with a conditional upsert.
+- Applied `toClientShape` to `authCallback`'s user response, `getAllUsers`, `getMessages`, and the socket `message` payload for `_id` parity, consistent with every prior phase.
+
 ### Next immediate action
-Phase 5: rewrite the auth callback/session endpoints, `dbUser.middleware.js`, `user.controller.js` (getAllUsers/getMessages), and `socket.js`'s `send_message` handler against Prisma.
+Phase 6: rewrite `seeds/songs.js` and `seeds/albums.js` against Prisma, delete the now-fully-unused Mongoose model files, do the final repo-wide sweep for `MONGODB_URI`/`mongoose`/`_id`-as-a-PK-field-name leftovers, and boot-check the server end to end.

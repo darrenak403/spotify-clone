@@ -1,11 +1,13 @@
-import User from "../models/user.model.js";
+import {prisma} from "../lib/prisma.js";
 
-// Resolves the verified Firebase caller to their local Mongo user record,
+// Resolves the verified Firebase caller to their local Postgres user record,
 // attaching it as req.dbUser so downstream controllers use the internal
-// _id (the canonical FK for chat/playlists) instead of the provider uid.
+// id (the canonical FK for chat/playlists) instead of the provider uid.
 export const attachDbUser = async (req, res, next) => {
   try {
-    const user = await User.findOne({firebaseUid: req.firebaseUser.uid});
+    const user = await prisma.user.findUnique({
+      where: {firebaseUid: req.firebaseUser.uid},
+    });
     if (!user) {
       return res
         .status(404)

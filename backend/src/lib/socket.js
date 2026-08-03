@@ -1,6 +1,8 @@
 import {Server} from "socket.io";
 import jwt from "jsonwebtoken";
-import Message from "../models/message.model.js";
+import {prisma} from "./prisma.js";
+import {toClientShape} from "./serialize.js";
+import {isUuid} from "./isUuid.js";
 
 export const initializeSocket = (server) => {
   const io = new Server(server, {
@@ -79,11 +81,15 @@ export const initializeSocket = (server) => {
         const senderId = socket.data.userId || data.senderId;
         if (!senderId) throw new Error("No sender identity for this connection");
 
-        const message = await Message.create({
-          senderId,
-          receiverId,
-          content,
-        });
+        if (!isUuid(senderId) || !isUuid(receiverId)) {
+          throw new Error("Invalid sender or receiver");
+        }
+
+        const message = toClientShape(
+          await prisma.message.create({
+            data: {senderId, receiverId, content},
+          })
+        );
 
         // send to receiver in realtime, if they're online
         const receiverSocketId = userSockets.get(receiverId);
@@ -94,7 +100,7 @@ export const initializeSocket = (server) => {
         socket.emit("message_sent", message);
       } catch (error) {
         console.error("Message error:", error);
-        socket.emit("message_error", error.message);
+        socket.emit("message_error", "Unable to send message");
       }
     });
 

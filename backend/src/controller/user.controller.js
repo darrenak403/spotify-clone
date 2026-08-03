@@ -1,11 +1,14 @@
-import User from "../models/user.model.js";
-import Message from "../models/message.model.js";
+import {prisma} from "../lib/prisma.js";
+import {toClientShape} from "../lib/serialize.js";
+import {isUuid} from "../lib/isUuid.js";
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    const currentUserId = req.dbUser._id;
-    const users = await User.find({_id: {$ne: currentUserId}});
-    res.status(200).json(users);
+    const currentUserId = req.dbUser.id;
+    const users = await prisma.user.findMany({
+      where: {id: {not: currentUserId}},
+    });
+    res.status(200).json(toClientShape(users));
   } catch (error) {
     next(error);
   }
@@ -13,17 +16,24 @@ export const getAllUsers = async (req, res, next) => {
 
 export const getMessages = async (req, res, next) => {
   try {
-    const myId = req.dbUser._id.toString();
+    const myId = req.dbUser.id;
     const {userId} = req.params;
 
-    const messages = await Message.find({
-      $or: [
-        {senderId: userId, receiverId: myId},
-        {senderId: myId, receiverId: userId},
-      ],
-    }).sort({createdAt: 1});
+    if (!isUuid(userId)) {
+      return res.status(200).json([]);
+    }
 
-    res.status(200).json(messages);
+    const messages = await prisma.message.findMany({
+      where: {
+        OR: [
+          {senderId: userId, receiverId: myId},
+          {senderId: myId, receiverId: userId},
+        ],
+      },
+      orderBy: {createdAt: "asc"},
+    });
+
+    res.status(200).json(toClientShape(messages));
   } catch (error) {
     next(error);
   }
