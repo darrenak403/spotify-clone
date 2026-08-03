@@ -27,6 +27,21 @@ export const useAuth = () => {
   return ctx;
 };
 
+// Render's free tier sleeps after 15min idle — the first request after that
+// can take 30s+ to wake it up and may time out at the proxy. Retry a couple
+// times with backoff instead of leaving the user stuck on the logged-out
+// screen until they manually refresh.
+const withRetry = async <T,>(fn: () => Promise<T>, retries = 2, delayMs = 4000): Promise<T> => {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempt >= retries) throw error;
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+};
+
 const updateApiToken = (token: string | null) => {
   if (token)
     axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -49,15 +64,14 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
           const idToken = await fbUser.getIdToken();
           updateApiToken(idToken);
 
-          const {data} = await axiosInstance.post("/auth/callback");
+          const {data} = await withRetry(() => axiosInstance.post("/auth/callback"));
           setUser(data.user);
 
           // Independent of each other — both only need the already-resolved
           // idToken/data.user from the callback above, so run them together.
-          const [, {data: sessionData}] = await Promise.all([
-            checkAdminStatus(),
-            axiosInstance.post("/auth/session"),
-          ]);
+          const [, {data: sessionData}] = await withRetry(() =>
+            Promise.all([checkAdminStatus(), axiosInstance.post("/auth/session")])
+          );
 
           // Session token is scoped to the Socket.io handshake only.
           initSocket(data.user._id, sessionData.token);
