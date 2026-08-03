@@ -3,13 +3,18 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {Outlet} from "react-router-dom";
 import LeftSidebar from "./components/LeftSidebar";
 import FriendActivity from "./components/FriendActivity";
 import AudioPlayer from "./components/AudioPlayer";
 import {PlaybackControls} from "./components/PlaybackControls";
 import {Suspense, useEffect, useState} from "react";
-import {Loader} from "lucide-react";
+import {Loader, Users} from "lucide-react";
 
 const PageLoader = () => (
   <div className="h-full w-full flex items-center justify-center">
@@ -19,6 +24,7 @@ const PageLoader = () => (
 
 const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(false); // Replace with actual mobile detection logic
+  const [showFriendActivity, setShowFriendActivity] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -73,6 +79,29 @@ const MainLayout = () => {
           </>
         )}
       </ResizablePanelGroup>
+
+      {isMobile && (
+        <>
+          <button
+            onClick={() => setShowFriendActivity(true)}
+            className="fixed right-4 bottom-24 z-20 size-12 rounded-full bg-emerald-500
+            hover:bg-emerald-400 shadow-lg flex items-center justify-center transition-colors"
+            aria-label="Show friend activity"
+          >
+            <Users className="size-5 text-black" />
+          </button>
+
+          <Dialog open={showFriendActivity} onOpenChange={setShowFriendActivity}>
+            <DialogContent
+              showCloseButton={false}
+              className="p-0 border-0 bg-transparent max-w-sm h-[70vh] sm:h-[70vh]"
+            >
+              <DialogTitle className="sr-only">Friend Activity</DialogTitle>
+              <FriendActivity />
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
 
       <PlaybackControls />
     </div>
