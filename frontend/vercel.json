@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/albums/:id([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})",
+      "destination": "/api/redirect-album?id=:id"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

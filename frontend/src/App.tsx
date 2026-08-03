@@ -33,7 +33,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/chat" element={<ChatPage />} />
-          <Route path="/albums/:albumId" element={<AlbumPage />} />
+          <Route path="/albums/:slug" element={<AlbumPage />} />
           <Route path="/*" element={<NotFoundPage />} />
         </Route>
       </Routes>

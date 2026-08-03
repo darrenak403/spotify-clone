@@ -44,6 +44,7 @@ model Album {
   id          String   @id @default(uuid()) @db.Uuid
   title       String
   artist      String
+  slug        String?  @unique
   imageUrl    String
   releaseYear Int
   createdAt   DateTime @default(now())

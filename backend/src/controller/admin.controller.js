@@ -1,8 +1,32 @@
 import {prisma} from "../lib/prisma.js";
 import {isUuid} from "../lib/isUuid.js";
 import {toClientShape} from "../lib/serialize.js";
+import {slugify} from "../lib/slugify.js";
 import cloudinary from "../lib/cloudinary.js"; //assuming you have a cloudinary config file
 import {homeQueryCache} from "./song.controller.js";
+
+// Creates the album with a unique slug, retrying the write itself on a
+// unique-constraint violation (Prisma P2002) rather than a racy
+// check-then-write pre-check — closes the window where two concurrent
+// creates with the same title could both pass a pre-check and collide.
+const createAlbumWithUniqueSlug = async (data) => {
+  const base = slugify(data.title) || "album";
+  let candidate = base;
+  let attempt = 1;
+
+  while (true) {
+    try {
+      return await prisma.album.create({data: {...data, slug: candidate}});
+    } catch (error) {
+      if (error.code === "P2002" && error.meta?.target?.includes("slug")) {
+        attempt += 1;
+        candidate = `${base}-${attempt}`;
+        continue;
+      }
+      throw error;
+    }
+  }
+};
 
 //helper function to upload files to Cloudinary
 const uploadToCloudinary = async (file) => {
@@ -94,13 +118,11 @@ export const createAlbum = async (req, res, next) => {
         .json({message: "Title, artist, and release year are required."});
     }
 
-    const album = await prisma.album.create({
-      data: {
-        title,
-        artist,
-        imageUrl,
-        releaseYear: Number(releaseYear),
-      },
+    const album = await createAlbumWithUniqueSlug({
+      title,
+      artist,
+      imageUrl,
+      releaseYear: Number(releaseYear),
     });
 
     homeQueryCache.flushAll();

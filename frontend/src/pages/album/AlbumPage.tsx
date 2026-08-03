@@ -16,14 +16,14 @@ const formatDuration = (duration: number) => {
 };
 
 const AlbumPage = () => {
-  const {albumId} = useParams();
+  const {slug} = useParams();
   const {fetchAlbumById, currentAlbum, isLoading} = useMusicStore();
   const {currentSong, isPlaying, playAlbum, togglePlay} = usePlayerStore();
   const {user, signInWithGoogle} = useAuth();
 
   useEffect(() => {
-    if (albumId) fetchAlbumById(albumId);
-  }, [fetchAlbumById, albumId]);
+    if (slug) fetchAlbumById(slug);
+  }, [fetchAlbumById, slug]);
 
   if (isLoading) return null;
 

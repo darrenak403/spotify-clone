@@ -25,17 +25,19 @@ export const getAlbumById = async (req, res, next) => {
   try {
     const {albumId} = req.params;
 
-    if (!isUuid(albumId)) {
-      return res.status(404).json({message: "Album not found"});
-    }
-
     const album = await prisma.album.findUnique({
-      where: {id: albumId},
+      where: isUuid(albumId) ? {id: albumId} : {slug: albumId},
       include: {songs: true},
     });
 
     if (!album) {
       return res.status(404).json({message: "Album not found"});
+    }
+
+    // Old UUID-based links redirect to the canonical slug URL so crawlers
+    // and old bookmarks converge on one indexable address (FR-06/phase-01).
+    if (isUuid(albumId) && album.slug) {
+      return res.redirect(301, `/api/albums/${album.slug}`);
     }
 
     res.status(200).json(toClientShape(album));
