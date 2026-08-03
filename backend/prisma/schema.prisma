@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  fullName    String
+  imageUrl    String   @default("")
+  firebaseUid String?  @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+
+  @@map("users")
+}
+
+model Song {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String
+  artist    String
+  imageUrl  String
+  audioUrl  String
+  duration  Int
+  albumId   String?  @db.Uuid
+  album     Album?   @relation(fields: [albumId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([artist])
+  @@index([albumId])
+  @@map("songs")
+}
+
+model Album {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  artist      String
+  imageUrl    String
+  releaseYear Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  songs Song[]
+
+  @@index([createdAt])
+  @@index([artist])
+  @@map("albums")
+}
+
+model Message {
+  id         String   @id @default(uuid()) @db.Uuid
+  senderId   String   @db.Uuid
+  receiverId String   @db.Uuid
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@map("messages")
+}

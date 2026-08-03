@@ -2,7 +2,6 @@ import express from 'express'
 import dotenv from 'dotenv'
 import fileUpload from 'express-fileupload'
 import path from 'path'
-import {connectDB} from './lib/db.js'
 import cors from 'cors'
 import compression from 'compression'
 import fs from 'fs'
@@ -93,5 +92,4 @@ app.use((err, req, res, next) => {
 
 httpServer.listen(PORT, () => {
   console.log('Server is running on port ' + PORT)
-  connectDB()
 })
