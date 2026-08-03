@@ -56,9 +56,26 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const {initSocket, disconnectSocket} = useChatStore();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      try {
-        if (fbUser) {
+    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+      // Firebase resolves the locally-persisted auth state fast (no network
+      // round trip needed). Unblock the app shell here instead of waiting
+      // on the backend sync below — the backend can be slow to wake up on
+      // Render's free tier, and there's no reason to hold the whole UI
+      // hostage to that when every consumer of `user` already renders a
+      // logged-out state until it resolves.
+      setFirebaseUser(fbUser);
+      setLoading(false);
+
+      if (!fbUser) {
+        updateApiToken(null);
+        setUser(null);
+        resetAuthStore();
+        disconnectSocket();
+        return;
+      }
+
+      (async () => {
+        try {
           // REST calls use the raw Firebase ID token (verified by the
           // backend's verifyIdToken middleware) — never the session token.
           const idToken = await fbUser.getIdToken();
@@ -75,20 +92,12 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
 
           // Session token is scoped to the Socket.io handshake only.
           initSocket(data.user._id, sessionData.token);
-        } else {
+        } catch (error) {
+          console.error("Error in auth provider", error);
           updateApiToken(null);
           setUser(null);
-          resetAuthStore();
-          disconnectSocket();
         }
-        setFirebaseUser(fbUser);
-      } catch (error) {
-        console.error("Error in auth provider", error);
-        updateApiToken(null);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
+      })();
     });
 
     return () => {
