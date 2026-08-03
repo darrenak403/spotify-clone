@@ -1,5 +1,7 @@
 import NodeCache from "node-cache";
-import Song from "../models/song.model.js";
+import {prisma} from "../lib/prisma.js";
+import {getRandomSongs} from "../lib/randomSongs.js";
+import {toClientShape} from "../lib/serialize.js";
 
 // Shared with admin.controller.js for flush-on-mutation invalidation.
 // Single-process cache: not safe across multiple Render instances.
@@ -12,14 +14,15 @@ export const getAllSongs = async (req, res, next) => {
     const limit = parseInt(req.query.limit, 10);
     const skip = parseInt(req.query.skip, 10);
 
-    let query = Song.find().sort({createdAt: -1});
+    const findArgs = {orderBy: {createdAt: "desc"}};
     if (Number.isInteger(limit) && limit > 0) {
       const validSkip = Number.isInteger(skip) && skip >= 0 ? skip : 0;
-      query = query.skip(validSkip).limit(Math.min(limit, 100));
+      findArgs.skip = validSkip;
+      findArgs.take = Math.min(limit, 100);
     }
 
-    const songs = await query.lean();
-    res.json(songs);
+    const songs = await prisma.song.findMany(findArgs);
+    res.json(toClientShape(songs));
   } catch (error) {
     console.error("Error in getAllSongs:", error);
     next(error);
@@ -35,22 +38,8 @@ export const getFeaturedSongs = async (req, res, next) => {
     }
 
     const start = Date.now();
-    // fetch 6 random songs using mongodb's aggregate pipeline
-    const songs = await Song.aggregate([
-      {
-        $sample: {size: 6},
-      },
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          artist: 1,
-          imageUrl: 1,
-          audioUrl: 1,
-        },
-      },
-    ]);
-    console.log(`[timing] getFeaturedSongs Mongo query: ${Date.now() - start}ms`);
+    const songs = toClientShape(await getRandomSongs(6));
+    console.log(`[timing] getFeaturedSongs Postgres query: ${Date.now() - start}ms`);
 
     homeQueryCache.set(cacheKey, songs);
     res.json(songs);
@@ -69,27 +58,13 @@ export const getMadeForYouSongs = async (req, res, next) => {
     }
 
     const start = Date.now();
-    // fetch 6 random songs using mongodb's aggregate pipeline
-    const songs = await Song.aggregate([
-      {
-        $sample: {size: 4},
-      },
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          artist: 1,
-          imageUrl: 1,
-          audioUrl: 1,
-        },
-      },
-    ]);
-    console.log(`[timing] getMadeForYouSongs Mongo query: ${Date.now() - start}ms`);
+    const songs = toClientShape(await getRandomSongs(4));
+    console.log(`[timing] getMadeForYouSongs Postgres query: ${Date.now() - start}ms`);
 
     homeQueryCache.set(cacheKey, songs);
     res.json(songs);
   } catch (error) {
-    console.error("Error in getFeaturedSongs:", error);
+    console.error("Error in getMadeForYouSongs:", error);
     next(error);
   }
 };
@@ -103,27 +78,13 @@ export const getTrendingSongs = async (req, res, next) => {
     }
 
     const start = Date.now();
-    // fetch 6 random songs using mongodb's aggregate pipeline
-    const songs = await Song.aggregate([
-      {
-        $sample: {size: 4},
-      },
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          artist: 1,
-          imageUrl: 1,
-          audioUrl: 1,
-        },
-      },
-    ]);
-    console.log(`[timing] getTrendingSongs Mongo query: ${Date.now() - start}ms`);
+    const songs = toClientShape(await getRandomSongs(4));
+    console.log(`[timing] getTrendingSongs Postgres query: ${Date.now() - start}ms`);
 
     homeQueryCache.set(cacheKey, songs);
     res.json(songs);
   } catch (error) {
-    console.error("Error in getFeaturedSongs:", error);
+    console.error("Error in getTrendingSongs:", error);
     next(error);
   }
 };

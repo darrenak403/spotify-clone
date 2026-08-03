@@ -23,8 +23,8 @@ Replace the Mongoose/MongoDB data layer with Prisma Client against a Neon-hosted
 ## Phases
 
 - [x] Phase 1: Prisma schema & connection foundation — schema.prisma, Prisma Client singleton, package.json deps
-- [ ] Phase 2: Catalog read controllers — Song & Album list/detail endpoints on Prisma, with UUID param validation
-- [ ] Phase 3: Random-sampling helper & home-page endpoints — featured/made-for-you/trending songs
+- [x] Phase 2: Catalog read controllers — Song & Album list/detail endpoints on Prisma, with UUID param validation
+- [x] Phase 3: Random-sampling helper & home-page endpoints — featured/made-for-you/trending songs
 - [ ] Phase 4: Admin mutation controller — song/album create/delete, cache invalidation preserved, plus `stat.controller.js`'s `getStats` (uncovered by any other phase — flagged in red-team review)
 - [ ] Phase 5: Auth, user, and chat message persistence — auth callback/session, dbUser middleware, Socket.io message handler
 - [ ] Phase 6: Seed scripts, deploy config & final verification pass
@@ -65,12 +65,15 @@ Two parallel researchers confirmed the concrete implementation pattern and flagg
 <!-- Updated by cook automatically — do not edit manually -->
 
 **Last active:** 2026-08-03 (cook liên tục, continuous run)
-**Phase in progress:** Phase 2 (Phase 1 complete)
-**Status:** Phase 1 done — schema.prisma authored (4 models, native UUID PKs, dual connection strings), `backend/src/lib/prisma.js` singleton created, `backend/src/lib/db.js` removed, `mongoose`/`mongodb` dropped from `backend/package.json`, `prisma`/`@prisma/client` added with `postinstall: prisma generate` and `start: prisma migrate deploy && node src/index.js` (applies the red-team-recommended fix directly instead of deferring it to Phase 6). Verified: `npm install` runs `prisma generate` cleanly; `npx prisma validate` passes with placeholder connection strings. Not verified (no live Neon credentials in-session): `prisma migrate dev/deploy` actually creating tables — deferred to a session with real credentials, per plan Risk "MEDIUM: no live credentials."
+**Phase in progress:** Phase 4 (Phases 1-3 complete)
+**Status:** Phases 1-3 done. Phase 1: schema.prisma (4 models, native UUID PKs, dual connection strings), Prisma Client singleton, deps swapped, `postinstall`/`start` wired. Phases 2+3 were implemented together (same file, `song.controller.js`, tightly coupled per plan's own Dependencies note): `getAllSongs`/`getAllAlbums` ported to Prisma pagination (skip/take), `getAlbumById` uses `include:{songs:true}` + a new `isUuid` guard (404 before any Prisma call), and the three random-song endpoints now call a shared `getRandomSongs(n)` helper (`backend/src/lib/randomSongs.js`, `ORDER BY random() LIMIT n` via parameterized `$queryRaw`) instead of Mongo's `$sample`.
+Verified: syntax-checked all touched files; grepped and confirmed no leftover Mongoose imports in `song.controller.js`/`album.controller.js`. Not verified (no live DB): actual query results against real data.
 
 ### Decisions made this session
-- Applied the Phase 6 risk's recommended fix (`start` script running `prisma migrate deploy` first) during Phase 1 itself, since the `start` script already needed editing here — avoids a second pass over the same file in Phase 6.
-- Boot smoke test after Phase 1 still fails (`ERR_MODULE_NOT_FOUND: mongoose` from `message.model.js` via `socket.js`) — expected and not a Phase 1 defect; the remaining Mongoose model imports are removed phase-by-phase as each controller is rewritten (Phase 5 covers `socket.js`/`message.model.js`). Full clean boot is Phase 6's success criterion.
+- Applied the Phase 6 risk's recommended fix (`start` script running `prisma migrate deploy` first) during Phase 1 itself.
+- **Code-reviewer caught a real response-shape regression**: Prisma returns `id`, but the frontend (explicitly out of scope for this migration, per spec's NFR "Availability") still reads `_id` everywhere. Fixed with a new `backend/src/lib/serialize.js` (`toClientShape`) that recursively renames `id` → `_id` (skipping `Date` instances) on every response from the touched endpoints, restoring exact shape parity — this is the mechanism that keeps "no frontend changes" actually true, rather than just asserted.
+- While rewriting, also fixed a pre-existing copy-paste bug: `getMadeForYouSongs`'s and `getTrendingSongs`'s catch blocks both logged `"Error in getFeaturedSongs"` — corrected to log their own function names, since the file was already open for the migration.
+- A tool/hook corrupted `getTrendingSongs`'s body mid-edit (truncated to a dangling `if (cached)` with no closing logic) — caught immediately by `node --check` failing, restored by hand, re-verified syntax before proceeding.
 
 ### Next immediate action
-Phase 2: rewrite `song.controller.js`'s `getAllSongs` and `album.controller.js`'s `getAllAlbums`/`getAlbumById` against Prisma, add UUID-format validation guard before ID-based lookups.
+Phase 4: rewrite `admin.controller.js` (song/album create/delete, dropping the old array-sync logic entirely since `Album.songs` is now a derived relation) and `stat.controller.js`'s `getStats` (row counts + union-based distinct-artist count) against Prisma, applying the same `isUuid` guard to its by-ID lookups (`deleteSong`, `deleteAlbum`).
