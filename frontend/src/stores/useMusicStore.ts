@@ -15,6 +15,7 @@ interface MusicStore {
     madeForYouSongs: Song[]; // Assuming you have a madeForYouSongs array
     trendingSongs: Song[]; // Assuming you have a trendingSongs array
     stats: Stats;
+    statsLoaded: boolean;
 
     // Paginated state for admin tables only — separate from `songs`/`albums`,
     // which stay full-list for LeftSidebar and other existing consumers.
@@ -53,6 +54,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
         totalArtists: 0,
         totalUsers: 0,
     },
+    statsLoaded: false,
     paginatedSongs: [],
     paginatedAlbums: [],
     hasMoreSongs: true,
@@ -153,7 +155,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await axiosInstance.get("/stats");
-            set({ stats: response.data });
+            set({ stats: response.data, statsLoaded: true });
         } catch (error: any) {
             set({ error: error.message });
         } finally {

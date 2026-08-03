@@ -20,10 +20,13 @@ const HomePage = () => {
   const {initializeQueue} = usePlayerStore();
 
   useEffect(() => {
-    fetchFeaturedSongs();
-    fetchMadeForYouSongs();
-    fetchTrendingSongs();
-  }, [fetchFeaturedSongs, fetchMadeForYouSongs, fetchTrendingSongs]);
+    if (featuredSongs.length === 0) fetchFeaturedSongs();
+    if (madeForYouSongs.length === 0) fetchMadeForYouSongs();
+    if (trendingSongs.length === 0) fetchTrendingSongs();
+    // Only re-fetch if this list is still empty — avoids re-triggering the
+    // loading skeleton every time the user navigates back to this page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (

@@ -15,12 +15,13 @@ const AdminPage = () => {
 
   // fetchAlbums (full list) is kept here for AddSongDialog's album picker —
   // SongTable/AlbumsTable use their own separate paginated fetch instead.
-  const {fetchAlbums, fetchStats} = useMusicStore();
+  const {albums, statsLoaded, fetchAlbums, fetchStats} = useMusicStore();
 
   useEffect(() => {
-    fetchAlbums();
-    fetchStats();
-  }, [fetchAlbums, fetchStats]);
+    if (albums.length === 0) fetchAlbums();
+    if (!statsLoaded) fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   if (!isAdmin && !isLoading) {
     return <Navigate to="/" replace />;
   }

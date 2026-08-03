@@ -1,5 +1,6 @@
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
+import AdminTableSkeleton from "@/components/skeletons/AdminTableSkeleton";
 import {
   Table,
   TableBody,
@@ -27,7 +28,7 @@ const SongTable = () => {
   const debouncedSearch = useDebounce(search, 300);
 
   useEffect(() => {
-    fetchSongsPage(true);
+    if (paginatedSongs.length === 0) fetchSongsPage(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -41,13 +42,7 @@ const SongTable = () => {
     );
   }, [paginatedSongs, debouncedSearch]);
 
-  if (isLoadingMoreSongs && paginatedSongs.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="text-zinc-400">Loading songs...</div>
-      </div>
-    );
-  }
+  const isInitialLoading = isLoadingMoreSongs && paginatedSongs.length === 0;
 
   if (error) {
     return (
@@ -78,7 +73,9 @@ const SongTable = () => {
         </TableHeader>
 
         <TableBody>
-          {filteredSongs.map((song) => (
+          {isInitialLoading && <AdminTableSkeleton columns={5} />}
+          {!isInitialLoading &&
+            filteredSongs.map((song) => (
             <TableRow key={song._id} className="hover:bg-zinc-800/50">
               <TableCell>
                 <img

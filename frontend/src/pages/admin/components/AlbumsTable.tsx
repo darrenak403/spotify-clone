@@ -1,5 +1,6 @@
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
+import AdminTableSkeleton from "@/components/skeletons/AdminTableSkeleton";
 import {
   Table,
   TableBody,
@@ -26,7 +27,7 @@ const AlbumsTable = () => {
   const debouncedSearch = useDebounce(search, 300);
 
   useEffect(() => {
-    fetchAlbumsPage(true);
+    if (paginatedAlbums.length === 0) fetchAlbumsPage(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -39,6 +40,8 @@ const AlbumsTable = () => {
         album.artist.toLowerCase().includes(term)
     );
   }, [paginatedAlbums, debouncedSearch]);
+
+  const isInitialLoading = isLoadingMoreAlbums && paginatedAlbums.length === 0;
 
   return (
     <div>
@@ -61,7 +64,9 @@ const AlbumsTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredAlbums.map((album) => (
+          {isInitialLoading && <AdminTableSkeleton columns={6} />}
+          {!isInitialLoading &&
+            filteredAlbums.map((album) => (
             <TableRow key={album._id} className="hover:bg-zinc-800/50">
               <TableCell>
                 <img
