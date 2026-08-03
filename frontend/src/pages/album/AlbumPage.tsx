@@ -6,10 +6,11 @@ import {useMusicStore} from "@/stores/useMusicStore";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import {Clock, Pause, Play} from "lucide-react";
 import {useEffect} from "react";
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import toast from "react-hot-toast";
 import Seo from "@/components/Seo";
 import {buildAlbumJsonLd, serializeJsonLd} from "@/lib/jsonLd";
+import {slugify} from "@/lib/slugify";
 
 const formatDuration = (duration: number) => {
   const minutes = Math.floor(duration / 60);
@@ -110,9 +111,14 @@ const AlbumPage = () => {
                   {currentAlbum?.title}
                 </h1>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-sm text-zinc-100">
-                  <span className="font-medium text-white">
-                    {currentAlbum?.artist}
-                  </span>
+                  {currentAlbum && (
+                    <Link
+                      to={`/artists/${slugify(currentAlbum.artist)}`}
+                      className="font-medium text-white hover:underline"
+                    >
+                      {currentAlbum.artist}
+                    </Link>
+                  )}
                   <span>• {currentAlbum?.songs.length} songs</span>
                   <span>• {currentAlbum?.releaseYear}</span>
                   {currentAlbum?.genre && <span>• {currentAlbum.genre}</span>}
