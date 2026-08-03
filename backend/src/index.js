@@ -16,6 +16,7 @@ import authRouter from './routes/auth.route.js'
 import songRouter from './routes/song.route.js'
 import albumRouter from './routes/album.route.js'
 import statRouter from './routes/stat.route.js'
+import artistRouter from './routes/artist.route.js'
 
 dotenv.config()
 const __dirname = path.resolve()
@@ -69,6 +70,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/songs', songRouter)
 app.use('/api/albums', albumRouter)
 app.use('/api/stats', statRouter)
+app.use('/api/artists', artistRouter)
 
 // Error handling middleware
 app.use((err, req, res, next) => {

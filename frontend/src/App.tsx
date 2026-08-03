@@ -8,6 +8,7 @@ import {Toaster} from "react-hot-toast";
 const HomePage = lazy(() => import("./pages/home/HomePage"));
 const ChatPage = lazy(() => import("./pages/chat/ChatPage"));
 const AlbumPage = lazy(() => import("./pages/album/AlbumPage"));
+const ArtistPage = lazy(() => import("./pages/artist/ArtistPage"));
 const AdminPage = lazy(() => import("./pages/admin/AdminPage"));
 const NotFoundPage = lazy(() => import("./pages/404/NotFoundPage"));
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/albums/:slug" element={<AlbumPage />} />
+          <Route path="/artists/:slug" element={<ArtistPage />} />
           <Route path="/*" element={<NotFoundPage />} />
         </Route>
       </Routes>

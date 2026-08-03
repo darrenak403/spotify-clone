@@ -19,6 +19,10 @@
     {
       "source": "/albums/:slug",
       "destination": "/index.html"
+    },
+    {
+      "source": "/artists/:slug",
+      "destination": "/index.html"
     }
   ]
 }
