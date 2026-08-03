@@ -1,11 +1,13 @@
 import {Button} from "@/components/ui/button";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {getOptimizedImageUrl} from "@/lib/getOptimizedImageUrl";
+import {useAuth} from "@/providers/AuthProvider";
 import {useMusicStore} from "@/stores/useMusicStore";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import {Clock, Pause, Play} from "lucide-react";
 import {useEffect} from "react";
 import {useParams} from "react-router-dom";
+import toast from "react-hot-toast";
 
 const formatDuration = (duration: number) => {
   const minutes = Math.floor(duration / 60);
@@ -17,6 +19,7 @@ const AlbumPage = () => {
   const {albumId} = useParams();
   const {fetchAlbumById, currentAlbum, isLoading} = useMusicStore();
   const {currentSong, isPlaying, playAlbum, togglePlay} = usePlayerStore();
+  const {user, signInWithGoogle} = useAuth();
 
   useEffect(() => {
     if (albumId) fetchAlbumById(albumId);
@@ -24,8 +27,15 @@ const AlbumPage = () => {
 
   if (isLoading) return null;
 
+  const requireAuth = () => {
+    if (user) return true;
+    toast.error("Sign in to play music");
+    signInWithGoogle();
+    return false;
+  };
+
   const handlePlayAlbum = () => {
-    if (!currentAlbum) return;
+    if (!currentAlbum || !requireAuth()) return;
 
     const isCurrentAlbumPlaying = currentAlbum?.songs.some(
       (song) => song._id === currentSong?._id
@@ -38,7 +48,7 @@ const AlbumPage = () => {
   };
 
   const handlePlaySong = (index: number) => {
-    if (!currentAlbum) return;
+    if (!currentAlbum || !requireAuth()) return;
 
     playAlbum(currentAlbum?.songs, index);
   };

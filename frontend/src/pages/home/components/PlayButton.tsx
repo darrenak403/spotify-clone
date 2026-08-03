@@ -1,13 +1,22 @@
 import {Button} from "@/components/ui/button";
+import {useAuth} from "@/providers/AuthProvider";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import type {Song} from "@/types";
 import {Pause, Play} from "lucide-react";
+import toast from "react-hot-toast";
 
 const PlayButton = ({song}: {song: Song}) => {
   const {currentSong, isPlaying, setCurrentSong, togglePlay} = usePlayerStore();
+  const {user, signInWithGoogle} = useAuth();
   const isCurrentSong = currentSong?._id === song._id;
 
   const handlePlay = () => {
+    if (!user) {
+      toast.error("Sign in to play music");
+      signInWithGoogle();
+      return;
+    }
+
     if (isCurrentSong) {
       togglePlay();
     } else {
