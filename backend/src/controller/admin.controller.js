@@ -41,6 +41,21 @@ const uploadToCloudinary = async (file) => {
   }
 };
 
+// Server-side length caps matching the DB column limits (VarChar(100)/(500))
+// so an oversized value fails with a clear 400 instead of a raw DB error.
+const GENRE_MAX_LENGTH = 100;
+const DESCRIPTION_MAX_LENGTH = 500;
+
+const validateGenreAndDescription = (genre, description) => {
+  if (genre && genre.length > GENRE_MAX_LENGTH) {
+    return `Genre must be ${GENRE_MAX_LENGTH} characters or fewer.`;
+  }
+  if (description && description.length > DESCRIPTION_MAX_LENGTH) {
+    return `Description must be ${DESCRIPTION_MAX_LENGTH} characters or fewer.`;
+  }
+  return null;
+};
+
 export const createSong = async (req, res, next) => {
   try {
     if (!req.files || !req.files.audioFile || !req.files.imageFile) {
@@ -49,7 +64,13 @@ export const createSong = async (req, res, next) => {
         .json({message: "Audio and image files are required."});
     }
 
-    const {title, artist, albumId, duration} = req.body;
+    const {title, artist, albumId, duration, genre, description} = req.body;
+
+    const validationError = validateGenreAndDescription(genre, description);
+    if (validationError) {
+      return res.status(400).json({message: validationError});
+    }
+
     const audioFile = req.files.audioFile;
     const imageFile = req.files.imageFile;
 
@@ -60,6 +81,8 @@ export const createSong = async (req, res, next) => {
       data: {
         title,
         artist,
+        genre: genre || null,
+        description: description || null,
         audioUrl,
         imageUrl,
         duration: Number(duration),
@@ -107,10 +130,8 @@ export const deleteSong = async (req, res, next) => {
 
 export const createAlbum = async (req, res, next) => {
   try {
-    const {title, artist, releaseYear} = req.body;
+    const {title, artist, releaseYear, genre, description} = req.body;
     const {imageFile} = req.files;
-
-    const imageUrl = await uploadToCloudinary(imageFile);
 
     if (!title || !artist || !releaseYear) {
       return res
@@ -118,9 +139,18 @@ export const createAlbum = async (req, res, next) => {
         .json({message: "Title, artist, and release year are required."});
     }
 
+    const validationError = validateGenreAndDescription(genre, description);
+    if (validationError) {
+      return res.status(400).json({message: validationError});
+    }
+
+    const imageUrl = await uploadToCloudinary(imageFile);
+
     const album = await createAlbumWithUniqueSlug({
       title,
       artist,
+      genre: genre || null,
+      description: description || null,
       imageUrl,
       releaseYear: Number(releaseYear),
     });

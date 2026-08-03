@@ -23,16 +23,18 @@ model User {
 }
 
 model Song {
-  id        String   @id @default(uuid()) @db.Uuid
-  title     String
-  artist    String
-  imageUrl  String
-  audioUrl  String
-  duration  Int
-  albumId   String?  @db.Uuid
-  album     Album?   @relation(fields: [albumId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  artist      String
+  genre       String?  @db.VarChar(100)
+  description String?  @db.VarChar(500)
+  imageUrl    String
+  audioUrl    String
+  duration    Int
+  albumId     String?  @db.Uuid
+  album       Album?   @relation(fields: [albumId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([createdAt])
   @@index([artist])
@@ -45,6 +47,8 @@ model Album {
   title       String
   artist      String
   slug        String?  @unique
+  genre       String?  @db.VarChar(100)
+  description String?  @db.VarChar(500)
   imageUrl    String
   releaseYear Int
   createdAt   DateTime @default(now())

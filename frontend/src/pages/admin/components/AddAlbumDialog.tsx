@@ -23,6 +23,8 @@ const AddAlbumDialog = () => {
     title: "",
     artist: "",
     releaseYear: new Date().getFullYear(),
+    genre: "",
+    description: "",
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -46,6 +48,8 @@ const AddAlbumDialog = () => {
       formData.append("title", newAlbum.title);
       formData.append("artist", newAlbum.artist);
       formData.append("releaseYear", newAlbum.releaseYear.toString());
+      formData.append("genre", newAlbum.genre);
+      formData.append("description", newAlbum.description);
       formData.append("imageFile", imageFile);
 
       await axiosInstance.post("/admin/albums", formData, {
@@ -58,6 +62,8 @@ const AddAlbumDialog = () => {
         title: "",
         artist: "",
         releaseYear: new Date().getFullYear(),
+        genre: "",
+        description: "",
       });
       setImageFile(null);
       setAlbumDialogOpen(false);
@@ -145,6 +151,33 @@ const AddAlbumDialog = () => {
               placeholder="Enter release year"
               min={1900}
               max={new Date().getFullYear()}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Genre (optional)</label>
+            <Input
+              value={newAlbum.genre}
+              onChange={(e) =>
+                setNewAlbum({...newAlbum, genre: e.target.value})
+              }
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="e.g. Synthwave"
+              maxLength={100}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Description (optional)
+            </label>
+            <textarea
+              value={newAlbum.description}
+              onChange={(e) =>
+                setNewAlbum({...newAlbum, description: e.target.value})
+              }
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-md p-2 text-sm"
+              placeholder="Shown in search results and social previews"
+              maxLength={500}
+              rows={3}
             />
           </div>
         </div>

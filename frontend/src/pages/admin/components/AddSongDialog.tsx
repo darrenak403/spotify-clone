@@ -27,6 +27,8 @@ interface NewSong {
   artist: string;
   album: string;
   duration: string;
+  genre: string;
+  description: string;
 }
 
 const AddSongDialog = () => {
@@ -39,6 +41,8 @@ const AddSongDialog = () => {
     artist: "",
     album: "",
     duration: "0",
+    genre: "",
+    description: "",
   });
 
   const [files, setFiles] = useState<{audio: File | null; image: File | null}>({
@@ -62,6 +66,8 @@ const AddSongDialog = () => {
       formData.append("title", newSong.title);
       formData.append("artist", newSong.artist);
       formData.append("duration", newSong.duration);
+      formData.append("genre", newSong.genre);
+      formData.append("description", newSong.description);
       if (newSong.album && newSong.album !== "none") {
         formData.append("albumId", newSong.album);
       }
@@ -80,6 +86,8 @@ const AddSongDialog = () => {
         artist: "",
         album: "",
         duration: "0",
+        genre: "",
+        description: "",
       });
 
       setFiles({
@@ -229,6 +237,33 @@ const AddSongDialog = () => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Genre (optional)</label>
+            <Input
+              value={newSong.genre}
+              onChange={(e) => setNewSong({...newSong, genre: e.target.value})}
+              className="bg-zinc-800 border-zinc-700"
+              placeholder="e.g. Lo-fi"
+              maxLength={100}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Description (optional)
+            </label>
+            <textarea
+              value={newSong.description}
+              onChange={(e) =>
+                setNewSong({...newSong, description: e.target.value})
+              }
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-md p-2 text-sm"
+              placeholder="Shown in search results and social previews"
+              maxLength={500}
+              rows={3}
+            />
           </div>
         </div>
 
