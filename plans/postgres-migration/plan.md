@@ -1,6 +1,6 @@
 # Plan: Migrate MongoDB → PostgreSQL (Prisma + Neon)
 
-Status: 🟡 In Progress
+Status: ✅ Done
 Date: 2026-08-03
 Mode: Hard
 
@@ -27,7 +27,7 @@ Replace the Mongoose/MongoDB data layer with Prisma Client against a Neon-hosted
 - [x] Phase 3: Random-sampling helper & home-page endpoints — featured/made-for-you/trending songs
 - [x] Phase 4: Admin mutation controller — song/album create/delete, cache invalidation preserved, plus `stat.controller.js`'s `getStats` (uncovered by any other phase — flagged in red-team review)
 - [x] Phase 5: Auth, user, and chat message persistence — auth callback/session, dbUser middleware, Socket.io message handler
-- [ ] Phase 6: Seed scripts, deploy config & final verification pass
+- [x] Phase 6: Seed scripts, deploy config & final verification pass
 
 ## Research Summary
 
@@ -88,5 +88,13 @@ Verified: syntax-checked all touched files; grepped and confirmed no leftover Mo
 - Code review also noted a **MEDIUM**, accepted-as-is drift: `prisma.user.upsert`'s empty `update: {}` on `authCallback` still bumps `User.updatedAt` on every repeat sign-in (Prisma's `@updatedAt` auto-populates on any `update` call, even an empty one), whereas the old `$setOnInsert`-only Mongoose query left the row fully untouched on a match. Not a functional bug — `fullName`/`imageUrl` are correctly never overwritten — just a timestamp-housekeeping difference, left as-is rather than working around with a conditional upsert.
 - Applied `toClientShape` to `authCallback`'s user response, `getAllUsers`, `getMessages`, and the socket `message` payload for `_id` parity, consistent with every prior phase.
 
+**Phase 6 status:** Done. `seeds/songs.js` and `seeds/albums.js` rewritten against Prisma (`deleteMany` + `create`/`createMany`, then album→song FK linking via `updateMany`); dropped the old two-way array-sync and the unused `plays` field, per the plan's own Risks note (LOW, confirmed deliberate). Deleted the now-fully-dead `backend/src/models/{user,song,album,message}.model.js` (their last remaining importers were the old seed files). Full repo-wide grep of `backend/src` and `backend/package.json` for `mongoose`/`MONGODB_URI`/model-file imports returned zero hits; `backend/.env.example` confirmed to only reference `DATABASE_URL`/`DIRECT_URL`. `package.json` scripts (`postinstall: prisma generate`, `start: prisma migrate deploy && node src/index.js`, `seed:songs`/`seed:albums`) already wired correctly from Phase 1 — no changes needed. `.prisma/client` was already generated locally, so a clean `rm -rf node_modules && npm install` dry run of the `postinstall` hook was not exercised in this session (skipped as unnecessary risk to the working tree; the script is a one-line, low-risk hook that npm always runs after install).
+
+Verified via boot/syntax check only (no live Neon/Postgres credentials available in-session): `node --check` passed on every file in `src/index.js`, `src/controller/*`, `src/middleware/*`, `src/lib/*`, `src/routes/*`; `node src/index.js` booted cleanly for 3s with no import/wiring errors (only an expected warning about missing Firebase env vars, unrelated to Postgres). NOT verified — requires a live DB: actual `prisma migrate deploy` execution, `seed:songs`/`seed:albums` producing real rows, and route-level response-shape spot-checks against real query results. This mirrors every prior phase's documented limitation.
+
+### Decisions made this session (Phase 6)
+- Code review (APPROVED, 0 CRITICAL/HIGH, 2 MEDIUM) found: (1) both seed scripts swallowed errors with exit code 0, which would let a failed seed be silently treated as success in a CI/deploy chain — fixed by setting `process.exitCode = 1` in each `catch` block; (2) `albums.js`'s multi-step create/link sequence (delete → create 14 songs → create 4 albums + link) ran as independent non-transactional calls, risking a half-seeded DB on a transient failure — fixed by wrapping the whole sequence in `prisma.$transaction(async (tx) => {...})`.
+- Reviewer confirmed as correct (no fix needed): `songRange` slicing exactly partitions the 14-song array with no gaps/overlaps; `Promise.all` preserves array order so index-based slicing into `createdSongs` is safe; `createMany` is correct for `songs.js` (no IDs needed) while `albums.js` correctly uses individual `create` calls (needs each song's generated `id` for the FK-linking step, which `createMany` can't return); deleting `Song` rows before `Album` rows is the FK-safe order given `Song.albumId` is the foreign key.
+
 ### Next immediate action
-Phase 6: rewrite `seeds/songs.js` and `seeds/albums.js` against Prisma, delete the now-fully-unused Mongoose model files, do the final repo-wide sweep for `MONGODB_URI`/`mongoose`/`_id`-as-a-PK-field-name leftovers, and boot-check the server end to end.
+All 6 phases complete and reviewed. Proceed to Finalize (project-manager/docs-manager/git-manager) to close out the plan.

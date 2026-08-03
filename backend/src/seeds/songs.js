@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-import Song from "../models/song.model.js";
+import {prisma} from "../lib/prisma.js";
 import {config} from "dotenv";
 
 config();
@@ -135,19 +134,18 @@ const songs = [
 
 const seedSongs = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-
     // Clear existing songs
-    await Song.deleteMany({});
+    await prisma.song.deleteMany();
 
     // Insert new songs
-    await Song.insertMany(songs);
+    await prisma.song.createMany({data: songs});
 
     console.log("Songs seeded successfully!");
   } catch (error) {
     console.error("Error seeding songs:", error);
+    process.exitCode = 1;
   } finally {
-    mongoose.connection.close();
+    await prisma.$disconnect();
   }
 };
 

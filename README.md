@@ -35,7 +35,8 @@ This project is a personal learning and exploration exercise inspired by Spotify
 
 ### Backend
 - **Express**  
-- **MongoDB**  
+- **PostgreSQL** (via Neon)
+- **Prisma** (ORM)
 - **Cloudinary**  
 - **dotenv**  
 - **CORS**  
@@ -52,7 +53,8 @@ This project is a personal learning and exploration exercise inspired by Spotify
 ### Backend (Render)
 | Variable | Description |
 | --- | --- |
-| `MONGODB_URI` | MongoDB connection string |
+| `DATABASE_URL` | PostgreSQL pooled connection string (Neon, ends in `-pooler`); used by the app at runtime |
+| `DIRECT_URL` | PostgreSQL direct/unpooled connection string (Neon); required by `prisma migrate` only |
 | `PORT` | Server port (Render sets this automatically) |
 | `FIREBASE_PROJECT_ID` | Firebase project id, from the service account JSON |
 | `FIREBASE_CLIENT_EMAIL` | Firebase service account client email |
