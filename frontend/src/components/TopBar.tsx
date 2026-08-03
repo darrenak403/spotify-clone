@@ -16,8 +16,8 @@ const TopBar = () => {
       backdrop-blur-md z-10"
     >
       <div className="flex gap-2 items-center shrink-0">
-        <img src="/logoamnhac.png" alt="Spotify logo" className="size-8" />
-        <span className="hidden sm:inline">Spotifak</span>
+        <img src="/logoamnhac.png" alt="DMusic logo" className="size-8" />
+        <span className="hidden sm:inline">DMusic</span>
       </div>
       <div className="flex gap-2 sm:gap-4 items-center min-w-0">
         {isAdmin && (
