@@ -65,6 +65,13 @@ const AlbumsTable = () => {
         </TableHeader>
         <TableBody>
           {isInitialLoading && <AdminTableSkeleton columns={6} />}
+          {!isInitialLoading && filteredAlbums.length === 0 && (
+            <TableRow className="hover:bg-transparent">
+              <TableCell colSpan={6} className="h-32 text-center text-zinc-400">
+                {debouncedSearch ? "No albums match your search." : "No albums yet. Add your first album to get started."}
+              </TableCell>
+            </TableRow>
+          )}
           {!isInitialLoading &&
             filteredAlbums.map((album) => (
             <TableRow key={album._id} className="hover:bg-zinc-800/50">

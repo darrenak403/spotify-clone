@@ -74,6 +74,13 @@ const SongTable = () => {
 
         <TableBody>
           {isInitialLoading && <AdminTableSkeleton columns={5} />}
+          {!isInitialLoading && filteredSongs.length === 0 && (
+            <TableRow className="hover:bg-transparent">
+              <TableCell colSpan={5} className="h-32 text-center text-zinc-400">
+                {debouncedSearch ? "No songs match your search." : "No songs yet. Add your first song to get started."}
+              </TableCell>
+            </TableRow>
+          )}
           {!isInitialLoading &&
             filteredSongs.map((song) => (
             <TableRow key={song._id} className="hover:bg-zinc-800/50">
