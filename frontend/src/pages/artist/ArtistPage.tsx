@@ -4,6 +4,7 @@ import {axiosInstance} from "@/lib/axios";
 import {Music} from "lucide-react";
 import {useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
+import Seo from "@/components/Seo";
 
 interface ArtistAlbumSummary {
   _id: string;
@@ -62,8 +63,19 @@ const ArtistPage = () => {
     artist.albums.reduce((sum, album) => sum + album.songCount, 0) +
     artist.standaloneSongs.length;
 
+  const artistDescription = `${artist.name} on DMusic — ${artist.albums.length} album${
+    artist.albums.length === 1 ? "" : "s"
+  }, ${totalSongs} song${totalSongs === 1 ? "" : "s"}.`;
+
   return (
     <div className="h-full">
+      <Seo
+        title={artist.name}
+        description={artistDescription}
+        canonicalPath={`/artists/${artist.slug}`}
+        image={artist.albums[0]?.imageUrl}
+        type="profile"
+      />
       <ScrollArea className="h-full rounded-md">
         <div className="relative min-h-full">
           <div

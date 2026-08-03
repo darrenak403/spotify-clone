@@ -5,6 +5,7 @@ import {ScrollArea} from "@/components/ui/scroll-area";
 import SectionGrid from "./components/SectionGrid";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import TopBar from "@/components/TopBar";
+import Seo from "@/components/Seo";
 
 const HomePage = () => {
   const {
@@ -42,6 +43,11 @@ const HomePage = () => {
 
   return (
     <main className="rounded-md overflow-hidden h-full bg-gradient-to-b from-zinc-800 to-zinc-900 ">
+      <Seo
+        title="DMusic — Stream Music Online"
+        description="Listen to trending songs, curated playlists and albums for free on DMusic."
+        canonicalPath="/"
+      />
       <TopBar />
       <ScrollArea className="h-[calc(100vh-180px)]">
         <div className="p-4 sm:p-6">

@@ -8,6 +8,7 @@ import {Clock, Pause, Play} from "lucide-react";
 import {useEffect} from "react";
 import {useParams} from "react-router-dom";
 import toast from "react-hot-toast";
+import Seo from "@/components/Seo";
 
 const formatDuration = (duration: number) => {
   const minutes = Math.floor(duration / 60);
@@ -52,8 +53,28 @@ const AlbumPage = () => {
 
     playAlbum(currentAlbum?.songs, index);
   };
+
+  const albumMetaDescription = currentAlbum
+    ? [
+        `${currentAlbum.title} by ${currentAlbum.artist}`,
+        currentAlbum.genre,
+        currentAlbum.description,
+      ]
+        .filter(Boolean)
+        .join(" — ")
+    : undefined;
+
   return (
     <div className="h-full">
+      {currentAlbum && (
+        <Seo
+          title={`${currentAlbum.title} by ${currentAlbum.artist}`}
+          description={albumMetaDescription}
+          canonicalPath={`/albums/${currentAlbum.slug}`}
+          image={currentAlbum.imageUrl}
+          type="music.album"
+        />
+      )}
       <ScrollArea className="h-full rounded-md">
         {/* Main content */}
         <div className="relative min-h-full">
