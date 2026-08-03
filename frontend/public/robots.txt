@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /albums/
+Allow: /artists/
+Disallow: /admin
+Disallow: /chat
+Disallow: /api/
+
+Sitemap: https://music.darrenak.id.vn/sitemap.xml

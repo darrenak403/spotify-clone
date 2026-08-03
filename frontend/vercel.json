@@ -5,7 +5,19 @@
       "destination": "/api/redirect-album?id=:id"
     },
     {
-      "source": "/(.*)",
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/chat",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/albums/:slug",
       "destination": "/index.html"
     }
   ]
