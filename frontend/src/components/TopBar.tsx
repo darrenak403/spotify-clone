@@ -12,21 +12,21 @@ const TopBar = () => {
   const {user} = useAuth();
   return (
     <div
-      className="flex items-center justify-between p-4 sticky top-0 bg-zinc-900/75 
+      className="flex items-center justify-between gap-2 p-4 sticky top-0 bg-zinc-900/75
       backdrop-blur-md z-10"
     >
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2 items-center shrink-0">
         <img src="/logoamnhac.png" alt="Spotify logo" className="size-8" />
-        Spotifak
+        <span className="hidden sm:inline">Spotifak</span>
       </div>
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-2 sm:gap-4 items-center min-w-0">
         {isAdmin && (
           <Link
             to={"/admin"}
-            className={cn(buttonVariants({variant: "outline"}))}
+            className={cn(buttonVariants({variant: "outline"}), "shrink-0")}
           >
-            <LayoutDashboardIcon className="size-4 mr-2" />
-            Admin Dashboard
+            <LayoutDashboardIcon className="size-4 sm:mr-2" />
+            <span className="hidden sm:inline">Admin Dashboard</span>
           </Link>
         )}
 
