@@ -25,7 +25,7 @@ Replace the Mongoose/MongoDB data layer with Prisma Client against a Neon-hosted
 - [x] Phase 1: Prisma schema & connection foundation — schema.prisma, Prisma Client singleton, package.json deps
 - [x] Phase 2: Catalog read controllers — Song & Album list/detail endpoints on Prisma, with UUID param validation
 - [x] Phase 3: Random-sampling helper & home-page endpoints — featured/made-for-you/trending songs
-- [ ] Phase 4: Admin mutation controller — song/album create/delete, cache invalidation preserved, plus `stat.controller.js`'s `getStats` (uncovered by any other phase — flagged in red-team review)
+- [x] Phase 4: Admin mutation controller — song/album create/delete, cache invalidation preserved, plus `stat.controller.js`'s `getStats` (uncovered by any other phase — flagged in red-team review)
 - [ ] Phase 5: Auth, user, and chat message persistence — auth callback/session, dbUser middleware, Socket.io message handler
 - [ ] Phase 6: Seed scripts, deploy config & final verification pass
 
@@ -75,5 +75,11 @@ Verified: syntax-checked all touched files; grepped and confirmed no leftover Mo
 - While rewriting, also fixed a pre-existing copy-paste bug: `getMadeForYouSongs`'s and `getTrendingSongs`'s catch blocks both logged `"Error in getFeaturedSongs"` — corrected to log their own function names, since the file was already open for the migration.
 - A tool/hook corrupted `getTrendingSongs`'s body mid-edit (truncated to a dangling `if (cached)` with no closing logic) — caught immediately by `node --check` failing, restored by hand, re-verified syntax before proceeding.
 
+**Phase 4 status:** Done. `admin.controller.js` (createSong/deleteSong/createAlbum/deleteAlbum) and `stat.controller.js` (getStats) rewritten against Prisma; old `Album.songs` array-sync ($push/$pull) deleted outright; cache-flush preserved on all 4 mutations; `deleteAlbum` now checks existence first (404, consistent with `deleteSong`'s pre-existing pattern — previously always 200, a deliberate improvement made while touching the file); `getStats`'s distinct-artist count reimplemented as a raw `UNION`-based SQL query.
+
+### Decisions made this session (Phase 4)
+- Code review caught a **CRITICAL pre-existing bug carried forward unexamined**: `deleteSong`'s old param-extraction line (`const {id} = req.params._id || req.params.id || req.params;`) always destructured off a string once Mongoose's leniency was gone, making `id` always `undefined` and the endpoint always 404 — this exact bug existed before the migration too (verified via git history) but was masked by looser Mongoose semantics; fixed to the same simple `const {id} = req.params;` pattern `deleteAlbum` already used correctly. This is exactly the pre-existing-quirk risk phase-04's plan file called out in advance.
+- Applied `toClientShape` to `createSong`/`createAlbum` responses (which return the created row) for the same `_id` parity reason established in Phase 2/3.
+
 ### Next immediate action
-Phase 4: rewrite `admin.controller.js` (song/album create/delete, dropping the old array-sync logic entirely since `Album.songs` is now a derived relation) and `stat.controller.js`'s `getStats` (row counts + union-based distinct-artist count) against Prisma, applying the same `isUuid` guard to its by-ID lookups (`deleteSong`, `deleteAlbum`).
+Phase 5: rewrite the auth callback/session endpoints, `dbUser.middleware.js`, `user.controller.js` (getAllUsers/getMessages), and `socket.js`'s `send_message` handler against Prisma.

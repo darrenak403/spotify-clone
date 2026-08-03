@@ -1,34 +1,20 @@
-import Song from "../models/song.model.js";
-import User from "../models/user.model.js";
-import Album from "../models/album.model.js";
+import {prisma} from "../lib/prisma.js";
 
 export const getStats = async (req, res, next) => {
   try {
-    // const totalSongs = await Song.countDocuments();
-    // const totalUsers = await User.countDocuments();
-    // const totalAlbums = await Album.countDocuments();
     const [totalSongs, totalUsers, totalAlbums, uniqueArtists] =
       await Promise.all([
-        Song.countDocuments(),
-        User.countDocuments(),
-        Album.countDocuments(),
-
-        Song.aggregate([
-          {
-            $unionWith: {
-              coll: "albums",
-              pipeline: [],
-            },
-          },
-          {
-            $group: {
-              _id: "$artist",
-            },
-          },
-          {
-            $count: "count",
-          },
-        ]),
+        prisma.song.count(),
+        prisma.user.count(),
+        prisma.album.count(),
+        prisma.$queryRaw`
+          SELECT COUNT(DISTINCT artist)::int AS count
+          FROM (
+            SELECT artist FROM songs
+            UNION
+            SELECT artist FROM albums
+          ) AS combined_artists
+        `,
       ]);
 
     res.status(200).json({
