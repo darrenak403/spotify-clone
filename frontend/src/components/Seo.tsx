@@ -22,7 +22,11 @@ const Seo = ({
   const fullTitle = `${title} | ${SITE_NAME}`;
   const canonicalUrl = `${CANONICAL_ORIGIN}${canonicalPath}`;
   const metaDescription = description?.trim() || DEFAULT_DESCRIPTION;
-  const metaImage = image || DEFAULT_IMAGE;
+  const metaImage = image
+    ? image.startsWith("http")
+      ? image
+      : `${CANONICAL_ORIGIN}${image.startsWith("/") ? "" : "/"}${image}`
+    : DEFAULT_IMAGE;
 
   return (
     <>
