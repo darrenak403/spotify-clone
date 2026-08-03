@@ -1,7 +1,5 @@
 const DEFAULT_ORIGINS = [
-  "https://spotify-clone-v1-fqb8.onrender.com",
-  "https://spotify-clone-server-fhgn.onrender.com",
-  "https://spotifak.darrenak.id.vn",
+  "https://spotify-omega-ashen.vercel.app",
   "http://localhost:3000",
 ];
 
