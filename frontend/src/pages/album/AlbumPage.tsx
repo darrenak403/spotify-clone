@@ -9,6 +9,7 @@ import {useEffect} from "react";
 import {useParams} from "react-router-dom";
 import toast from "react-hot-toast";
 import Seo from "@/components/Seo";
+import {buildAlbumJsonLd, serializeJsonLd} from "@/lib/jsonLd";
 
 const formatDuration = (duration: number) => {
   const minutes = Math.floor(duration / 60);
@@ -75,6 +76,11 @@ const AlbumPage = () => {
           type="music.album"
         />
       )}
+      {currentAlbum && (
+        <script type="application/ld+json">
+          {serializeJsonLd(buildAlbumJsonLd(currentAlbum))}
+        </script>
+      )}
       <ScrollArea className="h-full rounded-md">
         {/* Main content */}
         <div className="relative min-h-full">
@@ -109,7 +115,13 @@ const AlbumPage = () => {
                   </span>
                   <span>• {currentAlbum?.songs.length} songs</span>
                   <span>• {currentAlbum?.releaseYear}</span>
+                  {currentAlbum?.genre && <span>• {currentAlbum.genre}</span>}
                 </div>
+                {currentAlbum?.description && (
+                  <p className="text-sm text-zinc-300 mt-2 max-w-2xl">
+                    {currentAlbum.description}
+                  </p>
+                )}
               </div>
             </div>
 

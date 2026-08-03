@@ -1,3 +1,10 @@
+import {
+  buildSiteJsonLd,
+  buildAlbumJsonLd,
+  buildArtistJsonLd,
+  serializeJsonLd,
+} from "../src/lib/jsonLd.js";
+
 // Vercel serverless function invoked ONLY for recognized crawler/scraper
 // user agents (see the `has` user-agent rules in vercel.json — that file is
 // the single source of truth for which bot identities get routed here).
@@ -48,6 +55,7 @@ const renderShell = ({
   ogType,
   heading,
   body,
+  jsonLd,
 }) => {
   const fullTitle = `${title} | ${SITE_NAME}`;
   const canonicalUrl = `${CANONICAL_ORIGIN}${canonicalPath}`;
@@ -75,6 +83,7 @@ const renderShell = ({
 <meta name="twitter:title" content="${escapeHtml(fullTitle)}" />
 <meta name="twitter:description" content="${escapeHtml(metaDescription)}" />
 <meta name="twitter:image" content="${escapeHtml(metaImage)}" />
+<script type="application/ld+json">${serializeJsonLd(jsonLd)}</script>
 </head>
 <body>
 <h1>${escapeHtml(heading)}</h1>
@@ -118,19 +127,20 @@ const serveSpaFallback = async (req, res) => {
 };
 
 const renderHome = (res) => {
+  const siteJsonLd = buildSiteJsonLd();
   res
     .status(200)
     .setHeader("Content-Type", "text/html; charset=utf-8")
     .send(
       renderShell({
         title: "DMusic — Stream Music Online",
-        description:
-          "Listen to trending songs, curated playlists and albums for free on DMusic.",
+        description: siteJsonLd.description,
         canonicalPath: "/",
         image: null,
         ogType: "website",
         heading: "DMusic — Stream Music Online",
-        body: "<p>Discover trending songs, curated playlists and albums on DMusic.</p>",
+        body: `<p>${escapeHtml(siteJsonLd.description)}</p>`,
+        jsonLd: siteJsonLd,
       })
     );
 };
@@ -159,6 +169,10 @@ const renderAlbum = async (req, res, backendUrl, slug) => {
   const songListHtml = (album.songs || [])
     .map((song) => `<li>${escapeHtml(song.title)}</li>`)
     .join("");
+  const genreLine = album.genre ? ` • ${escapeHtml(album.genre)}` : "";
+  const descriptionLine = album.description
+    ? `<p>${escapeHtml(album.description)}</p>`
+    : "";
 
   res
     .status(200)
@@ -171,7 +185,8 @@ const renderAlbum = async (req, res, backendUrl, slug) => {
         image: album.imageUrl,
         ogType: "music.album",
         heading: album.title,
-        body: `<p>${escapeHtml(album.artist)} • ${album.releaseYear}</p><ul>${songListHtml}</ul>`,
+        body: `<p>${escapeHtml(album.artist)} • ${album.releaseYear}${genreLine}</p>${descriptionLine}<ul>${songListHtml}</ul>`,
+        jsonLd: buildAlbumJsonLd(album),
       })
     );
 };
@@ -212,6 +227,7 @@ const renderArtist = async (req, res, backendUrl, slug) => {
         ogType: "profile",
         heading: artist.name,
         body: `<ul>${albumsHtml}</ul>`,
+        jsonLd: buildArtistJsonLd(artist),
       })
     );
 };

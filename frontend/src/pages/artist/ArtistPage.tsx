@@ -5,6 +5,7 @@ import {Music} from "lucide-react";
 import {useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
 import Seo from "@/components/Seo";
+import {buildArtistJsonLd, serializeJsonLd} from "@/lib/jsonLd";
 
 interface ArtistAlbumSummary {
   _id: string;
@@ -76,6 +77,9 @@ const ArtistPage = () => {
         image={artist.albums[0]?.imageUrl}
         type="profile"
       />
+      <script type="application/ld+json">
+        {serializeJsonLd(buildArtistJsonLd(artist))}
+      </script>
       <ScrollArea className="h-full rounded-md">
         <div className="relative min-h-full">
           <div

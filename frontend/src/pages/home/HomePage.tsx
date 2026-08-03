@@ -6,6 +6,9 @@ import SectionGrid from "./components/SectionGrid";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import TopBar from "@/components/TopBar";
 import Seo from "@/components/Seo";
+import {buildSiteJsonLd, serializeJsonLd} from "@/lib/jsonLd";
+
+const siteJsonLd = buildSiteJsonLd();
 
 const HomePage = () => {
   const {
@@ -45,15 +48,17 @@ const HomePage = () => {
     <main className="rounded-md overflow-hidden h-full bg-gradient-to-b from-zinc-800 to-zinc-900 ">
       <Seo
         title="DMusic — Stream Music Online"
-        description="Listen to trending songs, curated playlists and albums for free on DMusic."
+        description={siteJsonLd.description}
         canonicalPath="/"
       />
+      <script type="application/ld+json">{serializeJsonLd(siteJsonLd)}</script>
       <TopBar />
       <ScrollArea className="h-[calc(100vh-180px)]">
         <div className="p-4 sm:p-6">
           <h1 className="text-2xl sm:text-3xl font-bold mb-6">
             Good Afternoon
           </h1>
+          <p className="text-sm text-zinc-400 mb-6">{siteJsonLd.description}</p>
           <FeaturedSection />
 
           <div className="space-y-8">
