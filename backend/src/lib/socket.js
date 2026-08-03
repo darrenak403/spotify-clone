@@ -3,14 +3,12 @@ import jwt from "jsonwebtoken";
 import {prisma} from "./prisma.js";
 import {toClientShape} from "./serialize.js";
 import {isUuid} from "./isUuid.js";
+import {allowedOrigins} from "./corsOrigins.js";
 
 export const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: [
-        "https://spotify-clone-v1-fqb8.onrender.com",
-        "http://localhost:3000",
-      ],
+      origin: allowedOrigins,
       credentials: true,
     },
   });

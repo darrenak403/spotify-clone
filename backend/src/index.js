@@ -8,6 +8,7 @@ import fs from 'fs'
 import {createServer} from 'http'
 import cron from 'node-cron'
 import {initializeSocket} from './lib/socket.js'
+import {allowedOrigins} from './lib/corsOrigins.js'
 
 import userRouter from './routes/user.route.js'
 import adminRouter from './routes/admin.route.js'
@@ -26,12 +27,7 @@ initializeSocket(httpServer)
 
 app.use(
   cors({
-    origin: [
-      'https://spotify-clone-v1-fqb8.onrender.com',
-      'http://localhost:3000',
-      'https://spotifak.darrenak.id.vn',
-      'https://spotify-clone-server-fhgn.onrender.com',
-    ],
+    origin: allowedOrigins,
     credentials: true,
   })
 )
@@ -63,25 +59,16 @@ cron.schedule('0 * * * *', () => {
   }
 })
 
+app.get('/api/health', (req, res) => {
+  res.status(200).json({status: 'ok', timestamp: new Date().toISOString()})
+})
+
 app.use('/api/users', userRouter)
 app.use('/api/admin', adminRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/songs', songRouter)
 app.use('/api/albums', albumRouter)
 app.use('/api/stats', statRouter)
-
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist'))) // dùng để phục vụ các tệp tĩnh
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend', 'dist', 'index.html')) // gửi tệp index.html
-  })
-}
-
-console.log(
-  'index.html exists:',
-  fs.existsSync(path.join(__dirname, '../frontend/dist/index.html'))
-)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
