@@ -39,7 +39,25 @@ function App() {
           <Route path="/*" element={<NotFoundPage />} />
         </Route>
       </Routes>
-      <Toaster />
+      <Toaster
+        containerStyle={{
+          top: "calc(env(safe-area-inset-top) + 16px)",
+        }}
+        toastOptions={{
+          style: {
+            background: "#27272a", // zinc-800
+            color: "#fff",
+            border: "1px solid #3f3f46", // zinc-700
+            fontSize: "0.875rem",
+          },
+          success: {
+            iconTheme: {primary: "#10b981", secondary: "#27272a"}, // emerald-500
+          },
+          error: {
+            iconTheme: {primary: "#f43f5e", secondary: "#27272a"}, // rose-500
+          },
+        }}
+      />
     </>
   );
 }

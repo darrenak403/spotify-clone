@@ -3,8 +3,12 @@ import {auth, googleProvider} from "@/lib/firebase";
 import {useAuthStore} from "@/stores/useAuthStore";
 import {useChatStore} from "@/stores/useChatStore";
 import type {User as DbUser} from "@/types";
+import {Capacitor} from "@capacitor/core";
+import {FirebaseAuthentication} from "@capacitor-firebase/authentication";
 import {
+  GoogleAuthProvider,
   onAuthStateChanged,
+  signInWithCredential,
   signInWithPopup,
   signOut,
   type User as FirebaseUser,
@@ -103,10 +107,26 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
   }, []);
 
   const signInWithGoogle = async () => {
-    await signInWithPopup(auth, googleProvider);
+    if (Capacitor.isNativePlatform()) {
+      // signInWithPopup relies on a full browser context that Capacitor's
+      // WKWebView doesn't provide — it hangs forever there. The native
+      // plugin does the OS-level Google sign-in, then we feed its ID token
+      // into the Firebase JS SDK so the rest of the app (onAuthStateChanged
+      // etc.) keeps working unchanged.
+      const result = await FirebaseAuthentication.signInWithGoogle();
+      const idToken = result.credential?.idToken;
+      if (!idToken) throw new Error("Google sign-in did not return an ID token");
+      const credential = GoogleAuthProvider.credential(idToken);
+      await signInWithCredential(auth, credential);
+    } else {
+      await signInWithPopup(auth, googleProvider);
+    }
   };
 
   const signOutUser = async () => {
+    if (Capacitor.isNativePlatform()) {
+      await FirebaseAuthentication.signOut();
+    }
     await signOut(auth);
   };
 
