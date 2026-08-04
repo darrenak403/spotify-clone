@@ -10,39 +10,6 @@
     },
     {
       "source": "/",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*(Googlebot|Bingbot|DuckDuckBot|Baiduspider|YandexBot|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|WhatsApp|Discordbot|redditbot|Applebot|Pinterest|SkypeUriPreview).*"
-        }
-      ],
-      "destination": "/api/render?type=home"
-    },
-    {
-      "source": "/albums/:slug",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*(Googlebot|Bingbot|DuckDuckBot|Baiduspider|YandexBot|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|WhatsApp|Discordbot|redditbot|Applebot|Pinterest|SkypeUriPreview).*"
-        }
-      ],
-      "destination": "/api/render?type=album&slug=:slug"
-    },
-    {
-      "source": "/artists/:slug",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*(Googlebot|Bingbot|DuckDuckBot|Baiduspider|YandexBot|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|WhatsApp|Discordbot|redditbot|Applebot|Pinterest|SkypeUriPreview).*"
-        }
-      ],
-      "destination": "/api/render?type=artist&slug=:slug"
-    },
-    {
-      "source": "/",
       "destination": "/index.html"
     },
     {
