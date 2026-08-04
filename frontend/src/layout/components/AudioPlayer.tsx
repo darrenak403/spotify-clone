@@ -1,49 +1,65 @@
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import {useEffect, useRef} from "react";
+import {getAudioEngine} from "@/lib/audio";
+import {setupIOSRemoteControls} from "@/lib/audio/remoteControls";
 
 const AudioPlayer = () => {
-  const audioRef = useRef<HTMLAudioElement>(null);
   const prevSongRef = useRef<string | null>(null);
+  const engineRef = useRef<ReturnType<typeof getAudioEngine> | null>(null);
+  if (!engineRef.current) engineRef.current = getAudioEngine();
+  const engine = engineRef.current;
 
-  const {currentSong, isPlaying, playNext} = usePlayerStore();
+  const {currentSong, isPlaying} = usePlayerStore();
 
-  //handle play/pause logic
+  // wire native/engine callbacks once
   useEffect(() => {
-    if (isPlaying) audioRef.current?.play();
-    else audioRef.current?.pause();
-  }, [isPlaying]);
+    engine.onEnded(() => usePlayerStore.getState().playNext());
+    engine.onPlaybackStateChanged((playing) => usePlayerStore.getState().syncPlaybackState(playing));
 
-  //handle song ends
+    // engine.pause() itself fires onPlaybackStateChanged, which syncs the store —
+    // no need to also set state here
+    const pauseFromSystemEvent = () => engine.pause();
+
+    const cleanup = setupIOSRemoteControls({
+      onNext: () => usePlayerStore.getState().playNext(),
+      onPrevious: () => usePlayerStore.getState().playPrevious(),
+      onInterrupted: pauseFromSystemEvent,
+      onRouteChanged: pauseFromSystemEvent,
+    });
+
+    return cleanup;
+  }, [engine]);
+
+  // handle play/pause
   useEffect(() => {
-    const audio = audioRef.current;
+    if (isPlaying) engine.play();
+    else engine.pause();
+  }, [isPlaying, engine]);
 
-    const handleEnded = () => {
-      playNext();
-    };
-
-    audio?.addEventListener("ended", handleEnded);
-
-    return () => audio?.removeEventListener("ended", handleEnded);
-  }, [playNext]);
-
-  //handle song changes
+  // handle song changes
   useEffect(() => {
-    if (!audioRef.current || !currentSong) return;
-    const audio = audioRef.current;
+    if (!currentSong) return;
 
-    //check if this is actually a new song
-    const isSongChanged = prevSongRef.current !== currentSong?.audioUrl;
+    const isSongChanged = prevSongRef.current !== currentSong.audioUrl;
     if (isSongChanged) {
-      audio.src = currentSong?.audioUrl;
-      // reset the playback position
-      audio.currentTime = 0;
-
-      prevSongRef.current = currentSong?.audioUrl;
-      //play the new song
-      if (isPlaying) audio.play();
+      prevSongRef.current = currentSong.audioUrl;
+      engine
+        .load(currentSong.audioUrl, {
+          title: currentSong.title,
+          artist: currentSong.artist,
+          artworkUrl: currentSong.imageUrl,
+        })
+        .then(() => {
+          if (usePlayerStore.getState().isPlaying) return engine.play();
+        })
+        .catch((error) => {
+          console.error("Failed to load track:", error);
+          usePlayerStore.getState().syncPlaybackState(false);
+        });
     }
-  }, [currentSong, isPlaying, prevSongRef]);
-  return <audio ref={audioRef} />;
+  }, [currentSong, engine]);
+
+  return null;
 };
 
 export default AudioPlayer;

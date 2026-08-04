@@ -14,6 +14,7 @@ interface PlayerStore {
 	togglePlay: () => void;
 	playNext: () => void;
 	playPrevious: () => void;
+	syncPlaybackState: (isPlaying: boolean) => void;
 }
 
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
@@ -85,6 +86,24 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 		set({
 			isPlaying: willStartPlaying,
 		});
+	},
+
+	// mirrors togglePlay's socket presence broadcast, for state changes that
+	// originate outside the UI (lock-screen controls, AVAudioSession interruptions)
+	syncPlaybackState: (isPlaying: boolean) => {
+		if (get().isPlaying === isPlaying) return;
+
+		const currentSong = get().currentSong;
+		const socket = useChatStore.getState().socket;
+		if (socket.auth) {
+			socket.emit("update_activity", {
+				userId: socket.auth.userId,
+				activity:
+					isPlaying && currentSong ? `Playing ${currentSong.title} by ${currentSong.artist}` : "Idle",
+			});
+		}
+
+		set({isPlaying});
 	},
 
 	playNext: () => {

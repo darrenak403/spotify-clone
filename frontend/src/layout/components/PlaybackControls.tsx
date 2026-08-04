@@ -1,6 +1,7 @@
 import {Button} from "@/components/ui/button";
 import {Slider} from "@/components/ui/slider";
 import {getOptimizedImageUrl} from "@/lib/getOptimizedImageUrl";
+import {getAudioEngine} from "@/lib/audio";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import {
   Laptop2,
@@ -29,38 +30,28 @@ export const PlaybackControls = () => {
   const [volume, setVolume] = useState(75);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const engineRef = useRef<ReturnType<typeof getAudioEngine> | null>(null);
+  if (!engineRef.current) engineRef.current = getAudioEngine();
+  const engine = engineRef.current;
 
   useEffect(() => {
-    audioRef.current = document.querySelector("audio");
+    // round to whole seconds — matches formatTime's display granularity and
+    // avoids re-rendering on every 100ms native tick / browser timeupdate
+    engine.onTimeUpdate((time) => {
+      setCurrentTime((prev) => {
+        const rounded = Math.floor(time);
+        return prev === rounded ? prev : rounded;
+      });
+    });
+    engine.onDurationChange(setDuration);
+  }, [engine]);
 
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
-
-    audio.addEventListener("timeupdate", updateTime);
-    audio.addEventListener("loadedmetadata", updateDuration);
-
-    const handleEnded = () => {
-      usePlayerStore.setState({isPlaying: false});
-    };
-
-    audio.addEventListener("ended", handleEnded);
-
-    return () => {
-      audio.removeEventListener("timeupdate", updateTime);
-      audio.removeEventListener("loadedmetadata", updateDuration);
-      audio.removeEventListener("ended", handleEnded);
-    };
+  useEffect(() => {
+    setCurrentTime(0);
   }, [currentSong]);
 
-  const handleSeek = (value: number[]) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = value[0];
-    }
-  };
+  const handleSeekChange = (value: number[]) => setCurrentTime(value[0]);
+  const handleSeekCommit = (value: number[]) => engine.seek(value[0]);
 
   return (
     <footer className="h-20 sm:h-24 bg-zinc-900 border-t border-zinc-800 px-4">
@@ -147,7 +138,8 @@ export const PlaybackControls = () => {
               max={duration || 100}
               step={1}
               className="w-full hover:cursor-grab active:cursor-grabbing"
-              onValueChange={handleSeek}
+              onValueChange={handleSeekChange}
+              onValueCommit={handleSeekCommit}
             />
             <div className="text-xs text-zinc-400">{formatTime(duration)}</div>
           </div>
@@ -190,12 +182,8 @@ export const PlaybackControls = () => {
               max={100}
               step={1}
               className="w-24 hover:cursor-grab active:cursor-grabbing"
-              onValueChange={(value) => {
-                setVolume(value[0]);
-                if (audioRef.current) {
-                  audioRef.current.volume = value[0] / 100;
-                }
-              }}
+              onValueChange={(value) => setVolume(value[0])}
+              onValueCommit={(value) => engine.setVolume(value[0] / 100)}
             />
           </div>
         </div>
