@@ -30,3 +30,7 @@ ios/App/App.xcodeproj/xcuserdata/
 ios/App/App.xcworkspace/xcuserdata/
 ios/App/App.xcworkspace/xcshareddata/
 ios/DerivedData/
+
+# Firebase config — bundled into the shipped app but shouldn't be re-committed
+# after a git history purge. Keep a local copy; do not track further.
+ios/App/App/GoogleService-Info.plist
