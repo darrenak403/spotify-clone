@@ -21,6 +21,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/search",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/library",
+      "destination": "/index.html"
+    },
+    {
       "source": "/albums/:slug",
       "destination": "/index.html"
     },
