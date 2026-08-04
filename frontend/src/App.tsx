@@ -10,6 +10,8 @@ const ChatPage = lazy(() => import("./pages/chat/ChatPage"));
 const AlbumPage = lazy(() => import("./pages/album/AlbumPage"));
 const ArtistPage = lazy(() => import("./pages/artist/ArtistPage"));
 const AdminPage = lazy(() => import("./pages/admin/AdminPage"));
+const SearchPage = lazy(() => import("./pages/search/SearchPage"));
+const LibraryPage = lazy(() => import("./pages/library/LibraryPage"));
 const NotFoundPage = lazy(() => import("./pages/404/NotFoundPage"));
 
 const RouteLoader = () => (
@@ -36,6 +38,8 @@ function App() {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/albums/:slug" element={<AlbumPage />} />
           <Route path="/artists/:slug" element={<ArtistPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/library" element={<LibraryPage />} />
           <Route path="/*" element={<NotFoundPage />} />
         </Route>
       </Routes>

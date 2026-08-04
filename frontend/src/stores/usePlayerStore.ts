@@ -10,6 +10,7 @@ interface PlayerStore {
 
 	initializeQueue: (songs: Song[]) => void;
 	playAlbum: (songs: Song[], startIndex?: number) => void;
+	addToQueue: (song: Song) => void;
 	setCurrentSong: (song: Song | null) => void;
 	togglePlay: () => void;
 	playNext: () => void;
@@ -49,6 +50,10 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 			currentIndex: startIndex,
 			isPlaying: true,
 		});
+	},
+
+	addToQueue: (song: Song) => {
+		set({queue: [...get().queue, song]});
 	},
 
 	setCurrentSong: (song: Song | null) => {

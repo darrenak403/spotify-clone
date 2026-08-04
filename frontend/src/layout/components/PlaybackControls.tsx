@@ -1,7 +1,7 @@
 import {Button} from "@/components/ui/button";
 import {Slider} from "@/components/ui/slider";
 import {getOptimizedImageUrl} from "@/lib/getOptimizedImageUrl";
-import {getAudioEngine} from "@/lib/audio";
+import {usePlaybackProgress} from "@/hooks/usePlaybackProgress";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import {
   Laptop2,
@@ -15,7 +15,7 @@ import {
   SkipForward,
   Volume1,
 } from "lucide-react";
-import {useEffect, useRef, useState} from "react";
+import {useState} from "react";
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -28,27 +28,8 @@ export const PlaybackControls = () => {
     usePlayerStore();
 
   const [volume, setVolume] = useState(75);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const engineRef = useRef<ReturnType<typeof getAudioEngine> | null>(null);
-  if (!engineRef.current) engineRef.current = getAudioEngine();
-  const engine = engineRef.current;
-
-  useEffect(() => {
-    // round to whole seconds — matches formatTime's display granularity and
-    // avoids re-rendering on every 100ms native tick / browser timeupdate
-    engine.onTimeUpdate((time) => {
-      setCurrentTime((prev) => {
-        const rounded = Math.floor(time);
-        return prev === rounded ? prev : rounded;
-      });
-    });
-    engine.onDurationChange(setDuration);
-  }, [engine]);
-
-  useEffect(() => {
-    setCurrentTime(0);
-  }, [currentSong]);
+  const {engine, currentTime, duration, setCurrentTime} =
+    usePlaybackProgress();
 
   const handleSeekChange = (value: number[]) => setCurrentTime(value[0]);
   const handleSeekCommit = (value: number[]) => engine.seek(value[0]);

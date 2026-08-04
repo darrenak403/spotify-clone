@@ -58,7 +58,9 @@ const HomePage = () => {
           <h1 className="text-2xl sm:text-3xl font-bold mb-6">
             Good Afternoon
           </h1>
-          <p className="text-sm text-zinc-400 mb-6">{siteJsonLd.description}</p>
+          <p className="text-sm text-zinc-400 mb-6 line-clamp-1 sm:line-clamp-none">
+            {siteJsonLd.description}
+          </p>
           <FeaturedSection />
 
           <div className="space-y-8">

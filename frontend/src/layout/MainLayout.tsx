@@ -11,10 +11,12 @@ import {
 import {Outlet} from "react-router-dom";
 import LeftSidebar from "./components/LeftSidebar";
 import FriendActivity from "./components/FriendActivity";
+import BottomNav from "./components/BottomNav";
+import MiniPlayer from "./components/MiniPlayer";
 import AudioPlayer from "./components/AudioPlayer";
 import {PlaybackControls} from "./components/PlaybackControls";
 import {Suspense, useEffect, useState} from "react";
-import {Loader, Users} from "lucide-react";
+import {Loader} from "lucide-react";
 
 const PageLoader = () => (
   <div className="h-full w-full flex items-center justify-center">
@@ -45,19 +47,19 @@ const MainLayout = () => {
         className="flex-1 flex h-full overflow-hidden p-2"
       >
         <AudioPlayer />
-        {/* Left sidebar */}
-        <ResizablePanel
-          defaultSize={20}
-          minSize={isMobile ? 0 : 10}
-          maxSize={30}
-        >
-          <LeftSidebar />
-        </ResizablePanel>
 
-        <ResizableHandle className="w-2 bg-black rounded-lg transition-colors" />
+        {/* Left sidebar — desktop only; mobile uses BottomNav instead */}
+        {!isMobile && (
+          <>
+            <ResizablePanel defaultSize={20} minSize={10} maxSize={30}>
+              <LeftSidebar />
+            </ResizablePanel>
+            <ResizableHandle className="w-2 bg-black rounded-lg transition-colors" />
+          </>
+        )}
 
         {/* Main content */}
-        <ResizablePanel defaultSize={isMobile ? 80 : 60}>
+        <ResizablePanel defaultSize={isMobile ? 100 : 60}>
           <Suspense fallback={<PageLoader />}>
             <Outlet />
           </Suspense>
@@ -80,16 +82,12 @@ const MainLayout = () => {
         )}
       </ResizablePanelGroup>
 
+      {/* Desktop keeps the full footer; mobile gets a mini player + bottom nav */}
+      {isMobile ? <MiniPlayer /> : <PlaybackControls />}
+
       {isMobile && (
         <>
-          <button
-            onClick={() => setShowFriendActivity(true)}
-            className="fixed right-4 bottom-[calc(6rem+env(safe-area-inset-bottom))] z-20 size-12 rounded-full bg-emerald-500
-            hover:bg-emerald-400 shadow-lg flex items-center justify-center transition-colors"
-            aria-label="Show friend activity"
-          >
-            <Users className="size-5 text-black" />
-          </button>
+          <BottomNav onFriendsClick={() => setShowFriendActivity(true)} />
 
           <Dialog open={showFriendActivity} onOpenChange={setShowFriendActivity}>
             <DialogContent
@@ -102,8 +100,6 @@ const MainLayout = () => {
           </Dialog>
         </>
       )}
-
-      <PlaybackControls />
     </div>
   );
 };

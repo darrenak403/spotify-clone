@@ -1,6 +1,12 @@
 import {useAuth} from "@/providers/AuthProvider";
 import {Avatar, AvatarFallback, AvatarImage} from "./ui/avatar";
-import {Button} from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import {LogOut} from "lucide-react";
 
 const UserMenu = () => {
@@ -8,15 +14,25 @@ const UserMenu = () => {
   if (!user) return null;
 
   return (
-    <div className="flex items-center gap-2">
-      <Avatar className="size-8">
-        <AvatarImage src={user.imageUrl} alt={user.fullName} />
-        <AvatarFallback>{user.fullName[0]}</AvatarFallback>
-      </Avatar>
-      <Button size="icon" variant="ghost" onClick={signOutUser} title="Sign out">
-        <LogOut className="size-4" />
-      </Button>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button aria-label="Account menu" className="rounded-full">
+          <Avatar className="size-8">
+            <AvatarImage src={user.imageUrl} alt={user.fullName} />
+            <AvatarFallback>{user.fullName[0]}</AvatarFallback>
+          </Avatar>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <div className="px-2 py-1.5 text-sm font-medium truncate">
+          {user.fullName}
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={signOutUser}>
+          <LogOut /> Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 export default UserMenu;

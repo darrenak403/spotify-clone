@@ -12,7 +12,7 @@ const TopBar = () => {
   const {user} = useAuth();
   return (
     <div
-      className="flex items-center justify-between gap-2 p-4 sticky top-0 bg-zinc-900/75
+      className="flex items-center justify-between gap-2 h-14 sm:h-16 px-4 sticky top-0 bg-zinc-900/75
       backdrop-blur-md z-10"
     >
       <div className="flex gap-2 items-center shrink-0">

@@ -29,14 +29,14 @@ const SectionGrid: FC<SectionGridProps> = ({title, songs, isLoading}) => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible">
         {songs.map((song: Song) => {
           const album = albums.find((item) => item._id === song.albumId);
 
           return (
             <div
               key={song._id}
-              className="bg-zinc-800/40 p-4 rounded-md hover:bg-zinc-700/40 transition-all group cursor-pointer"
+              className="w-36 flex-shrink-0 sm:w-auto bg-zinc-800/40 p-4 rounded-md hover:bg-zinc-700/40 transition-all group cursor-pointer"
             >
               <div className="relative mb-4">
                 <div className="aspect-square rounded-md shadow-lg overflow-hidden">
