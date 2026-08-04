@@ -1,0 +1,28 @@
+PODS:
+  - Capacitor (8.5.0):
+    - CapacitorCordova
+  - CapacitorCordova (8.5.0)
+  - CapgoCapacitorNativeAudio (8.4.19):
+    - Capacitor
+
+DEPENDENCIES:
+  - "Capacitor (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapgoCapacitorNativeAudio (from `../../node_modules/@capgo/capacitor-native-audio`)"
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorCordova:
+    :path: "../../node_modules/@capacitor/ios"
+  CapgoCapacitorNativeAudio:
+    :path: "../../node_modules/@capgo/capacitor-native-audio"
+
+SPEC CHECKSUMS:
+  Capacitor: 00b87168591cc006ea6f5c0de681ec5c39a2c8eb
+  CapacitorCordova: 9d3acbb574048e7167d2af127a0af2123e619f2f
+  CapgoCapacitorNativeAudio: a25bf362335f61486325ed195c44cb962d4b4949
+
+PODFILE CHECKSUM: c4c51e741e810d02e2591b7dc0e363ea46725c16
+
+COCOAPODS: 1.16.2
