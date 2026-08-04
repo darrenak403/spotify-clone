@@ -9,7 +9,6 @@ import {
   signOut,
   type User as FirebaseUser,
 } from "firebase/auth";
-import {Loader} from "lucide-react";
 import {createContext, useContext, useEffect, useState} from "react";
 
 interface AuthContextValue {
@@ -51,20 +50,16 @@ const updateApiToken = (token: string | null) => {
 const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [user, setUser] = useState<DbUser | null>(null);
-  const [loading, setLoading] = useState(true);
   const {checkAdminStatus, reset: resetAuthStore} = useAuthStore();
   const {initSocket, disconnectSocket} = useChatStore();
 
   useEffect(() => {
+    // Firebase, its auth-state resolution, and the chat socket all load
+    // lazily after first paint — every consumer of `user` already renders a
+    // logged-out state until this resolves, so nothing here should block
+    // the initial render.
     const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
-      // Firebase resolves the locally-persisted auth state fast (no network
-      // round trip needed). Unblock the app shell here instead of waiting
-      // on the backend sync below — the backend can be slow to wake up on
-      // Render's free tier, and there's no reason to hold the whole UI
-      // hostage to that when every consumer of `user` already renders a
-      // logged-out state until it resolves.
       setFirebaseUser(fbUser);
-      setLoading(false);
 
       if (!fbUser) {
         updateApiToken(null);
@@ -114,13 +109,6 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const signOutUser = async () => {
     await signOut(auth);
   };
-
-  if (loading)
-    return (
-      <div className="h-screen w-full flex items-center justify-center">
-        <Loader className="size-8 text-emerald-500 animate-spin" />
-      </div>
-    );
 
   return (
     <AuthContext.Provider value={{firebaseUser, user, signInWithGoogle, signOutUser}}>

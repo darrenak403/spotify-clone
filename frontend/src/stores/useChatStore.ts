@@ -1,7 +1,6 @@
 import { axiosInstance } from "@/lib/axios";
 import type { Message, User } from "@/types";
 import { create } from "zustand";
-import { io } from "socket.io-client";
 
 interface ChatStore {
 	users: User[];
@@ -15,7 +14,7 @@ interface ChatStore {
 	selectedUser: User | null;
 
 	fetchUsers: () => Promise<void>;
-	initSocket: (userId: string, sessionToken: string) => void;
+	initSocket: (userId: string, sessionToken: string) => Promise<void>;
 	disconnectSocket: () => void;
 	sendMessage: (receiverId: string, senderId: string, content: string) => void;
 	fetchMessages: (userId: string) => Promise<void>;
@@ -24,16 +23,11 @@ interface ChatStore {
 
 const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || "http://localhost:5000";
 
-const socket = io(baseURL, {
-	autoConnect: false, // only connect if user is authenticated
-	withCredentials: true,
-});
-
 export const useChatStore = create<ChatStore>((set, get) => ({
 	users: [],
 	isLoading: false,
 	error: null,
-	socket: socket,
+	socket: null,
 	isConnected: false,
 	onlineUsers: new Set(),
 	userActivities: new Map(),
@@ -56,12 +50,18 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 		}
 	},
 
-	initSocket: (userId, sessionToken) => {
+	initSocket: async (userId, sessionToken) => {
 		if (!get().isConnected) {
-			// Socket handshake uses the backend session token (Phase 2/3), never
-			// the Firebase ID token.
-			socket.auth = { token: sessionToken };
-			socket.connect();
+			// socket.io-client is only fetched once a user actually authenticates,
+			// keeping it out of the initial page load's critical path.
+			const { io } = await import("socket.io-client");
+			const socket = io(baseURL, {
+				withCredentials: true,
+				// Socket handshake uses the backend session token (Phase 2/3), never
+				// the Firebase ID token.
+				auth: { token: sessionToken },
+			});
+			set({ socket });
 
 			socket.emit("user_connected", userId);
 
@@ -113,7 +113,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 	disconnectSocket: () => {
 		if (get().isConnected) {
-			socket.disconnect();
+			get().socket?.disconnect();
 			set({ isConnected: false });
 		}
 	},

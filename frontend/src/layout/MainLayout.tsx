@@ -39,7 +39,7 @@ const MainLayout = () => {
     };
   }, []);
   return (
-    <div className="h-screen bg-black text-white flex flex-col">
+    <div className="h-screen bg-black text-white flex flex-col pt-[env(safe-area-inset-top)]">
       <ResizablePanelGroup
         direction="horizontal"
         className="flex-1 flex h-full overflow-hidden p-2"
@@ -84,7 +84,7 @@ const MainLayout = () => {
         <>
           <button
             onClick={() => setShowFriendActivity(true)}
-            className="fixed right-4 bottom-24 z-20 size-12 rounded-full bg-emerald-500
+            className="fixed right-4 bottom-[calc(6rem+env(safe-area-inset-bottom))] z-20 size-12 rounded-full bg-emerald-500
             hover:bg-emerald-400 shadow-lg flex items-center justify-center transition-colors"
             aria-label="Show friend activity"
           >
