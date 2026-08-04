@@ -24,7 +24,7 @@ const CANONICAL_ORIGIN = "https://music.darrenak.id.vn";
 const SITE_NAME = "DMusic";
 const DEFAULT_DESCRIPTION =
   "Stream albums and artists on DMusic — discover songs, playlists and more.";
-const DEFAULT_IMAGE = `${CANONICAL_ORIGIN}/logoamnhac.png`;
+const DEFAULT_IMAGE = `${CANONICAL_ORIGIN}/DMusic-Banner.png`;
 
 const HTML_ESCAPES = {
   "&": "&amp;",
