@@ -1,5 +1,6 @@
 import {Navigate} from "react-router-dom";
 import {useAuthStore} from "@/stores/useAuthStore";
+import {useAuth} from "@/providers/AuthProvider";
 import Header from "./components/Header";
 import DashboardStats from "./components/DashboardStats";
 import {Album, Music} from "lucide-react";
@@ -12,16 +13,21 @@ import {useMusicStore} from "@/stores/useMusicStore";
 
 const AdminPage = () => {
   const {isAdmin, isLoading} = useAuthStore();
+  const {authReady} = useAuth();
 
   // fetchAlbums (full list) is kept here for AddSongDialog's album picker —
   // SongTable/AlbumsTable use their own separate paginated fetch instead.
   const {albums, statsLoaded, fetchAlbums, fetchStats} = useMusicStore();
 
   useEffect(() => {
+    // Wait for AuthProvider to finish restoring the Firebase session and
+    // attaching the Authorization header before firing admin-only requests
+    // (fetchStats requires auth; firing early causes a spurious 401).
+    if (!authReady) return;
     if (albums.length === 0) fetchAlbums();
     if (!statsLoaded) fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [authReady]);
   if (!isAdmin && !isLoading) {
     return <Navigate to="/" replace />;
   }

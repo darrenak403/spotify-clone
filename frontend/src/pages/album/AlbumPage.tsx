@@ -30,6 +30,17 @@ const AlbumPage = () => {
 
   if (isLoading) return null;
 
+  if (!currentAlbum) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center gap-2 text-zinc-100">
+        <h1 className="text-2xl font-bold">Album not found</h1>
+        <p className="text-zinc-400">
+          This album may have been removed or the link is invalid.
+        </p>
+      </div>
+    );
+  }
+
   const requireAuth = () => {
     if (user) return true;
     toast.error("Sign in to play music");

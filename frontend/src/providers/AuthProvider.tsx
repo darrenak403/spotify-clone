@@ -18,6 +18,7 @@ import {createContext, useContext, useEffect, useState} from "react";
 interface AuthContextValue {
   firebaseUser: FirebaseUser | null;
   user: DbUser | null;
+  authReady: boolean;
   signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
 }
@@ -54,6 +55,13 @@ const updateApiToken = (token: string | null) => {
 const AuthProvider = ({children}: {children: React.ReactNode}) => {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [user, setUser] = useState<DbUser | null>(null);
+  // Flips true once the first onAuthStateChanged callback (and, for a
+  // signed-in user, the token/admin-check flow it kicks off) has settled.
+  // Consumers that need an auth-aware request (e.g. admin-only endpoints)
+  // must wait for this instead of firing on mount — isLoading in
+  // useAuthStore defaults to false and only turns true once checkAdminStatus
+  // has already started, which is too late to guard the very first request.
+  const [authReady, setAuthReady] = useState(false);
   const {checkAdminStatus, reset: resetAuthStore} = useAuthStore();
   const {initSocket, disconnectSocket} = useChatStore();
 
@@ -70,6 +78,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
         setUser(null);
         resetAuthStore();
         disconnectSocket();
+        setAuthReady(true);
         return;
       }
 
@@ -95,6 +104,8 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
           console.error("Error in auth provider", error);
           updateApiToken(null);
           setUser(null);
+        } finally {
+          setAuthReady(true);
         }
       })();
     });
@@ -131,7 +142,7 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
   };
 
   return (
-    <AuthContext.Provider value={{firebaseUser, user, signInWithGoogle, signOutUser}}>
+    <AuthContext.Provider value={{firebaseUser, user, authReady, signInWithGoogle, signOutUser}}>
       {children}
     </AuthContext.Provider>
   );

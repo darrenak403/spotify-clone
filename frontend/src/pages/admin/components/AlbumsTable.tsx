@@ -94,7 +94,7 @@ const AlbumsTable = () => {
               <TableCell>
                 <span className="inline-flex items-center gap-1 text-zinc-400">
                   <Music className="h-4 w-4" />
-                  {album.songs.length} songs
+                  {album.songCount ?? album.songs?.length ?? 0} songs
                 </span>
               </TableCell>
               <TableCell className="text-right">

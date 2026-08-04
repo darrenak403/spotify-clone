@@ -14,8 +14,17 @@ export const getAllAlbums = async (req, res, next) => {
       findArgs.take = Math.min(limit, 100);
     }
 
-    const albums = await prisma.album.findMany(findArgs);
-    res.status(200).json(toClientShape(albums));
+    const albums = await prisma.album.findMany({
+      ...findArgs,
+      include: {_count: {select: {songs: true}}},
+    });
+    // The list endpoint intentionally doesn't load full song rows (unlike
+    // getAlbumById) — only a count, so admin table pagination stays cheap.
+    const withSongCount = albums.map(({_count, ...album}) => ({
+      ...album,
+      songCount: _count.songs,
+    }));
+    res.status(200).json(toClientShape(withSongCount));
   } catch (error) {
     next(error);
   }

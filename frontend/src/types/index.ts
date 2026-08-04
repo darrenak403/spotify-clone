@@ -22,6 +22,9 @@ export interface Album {
 	imageUrl: string;
 	releaseYear: number;
 	songs: Song[];
+	// Only set by the paginated list endpoint (getAllAlbums), which doesn't
+	// load full song rows — getAlbumById sets `songs` instead.
+	songCount?: number;
 }
 
 export interface Stats {
