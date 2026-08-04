@@ -47,7 +47,7 @@ const HomePage = () => {
   return (
     <main className="rounded-md overflow-hidden h-full bg-gradient-to-b from-zinc-800 to-zinc-900 ">
       <Seo
-        title="DMusic — Stream Music Online"
+        title="Evon — Stream Music Online"
         description={siteJsonLd.description}
         canonicalPath="/"
       />

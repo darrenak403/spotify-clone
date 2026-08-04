@@ -1,7 +1,7 @@
-const SITE_NAME = "DMusic";
+const SITE_NAME = "Evon";
 const CANONICAL_ORIGIN = "https://music.darrenak.id.vn";
 const DEFAULT_DESCRIPTION =
-  "Stream albums and artists on DMusic — discover songs, playlists and more.";
+  "Stream albums and artists on Evon — discover songs, playlists and more.";
 const DEFAULT_IMAGE = `${CANONICAL_ORIGIN}/DMusic-Banner.png`;
 
 interface SeoProps {

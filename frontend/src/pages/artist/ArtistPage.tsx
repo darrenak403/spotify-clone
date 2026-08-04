@@ -64,7 +64,7 @@ const ArtistPage = () => {
     artist.albums.reduce((sum, album) => sum + album.songCount, 0) +
     artist.standaloneSongs.length;
 
-  const artistDescription = `${artist.name} on DMusic — ${artist.albums.length} album${
+  const artistDescription = `${artist.name} on Evon — ${artist.albums.length} album${
     artist.albums.length === 1 ? "" : "s"
   }, ${totalSongs} song${totalSongs === 1 ? "" : "s"}.`;
 
