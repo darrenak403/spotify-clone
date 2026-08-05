@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 const AddAlbumDialog = () => {
   const [albumDialogOpen, setAlbumDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [newAlbum, setNewAlbum] = useState({
@@ -38,6 +39,7 @@ const AddAlbumDialog = () => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
+    setUploadProgress(0);
 
     try {
       if (!imageFile) {
@@ -56,6 +58,12 @@ const AddAlbumDialog = () => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        onUploadProgress: (progressEvent) => {
+          if (!progressEvent.total) return;
+          setUploadProgress(
+            Math.round((progressEvent.loaded / progressEvent.total) * 100)
+          );
+        },
       });
 
       setNewAlbum({
@@ -72,11 +80,18 @@ const AddAlbumDialog = () => {
       toast.error("Failed to create album: " + error.message);
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
   return (
-    <Dialog open={albumDialogOpen} onOpenChange={setAlbumDialogOpen}>
+    <Dialog
+      open={albumDialogOpen}
+      onOpenChange={(open) => {
+        if (isLoading) return;
+        setAlbumDialogOpen(open);
+      }}
+    >
       <DialogTrigger asChild>
         <Button className="bg-violet-500 hover:bg-violet-600 text-white">
           <Plus className="mr-2 h-4 w-4" />
@@ -181,6 +196,21 @@ const AddAlbumDialog = () => {
             />
           </div>
         </div>
+        {isLoading && (
+          <div className="space-y-1.5" role="status" aria-live="polite">
+            <div className="flex items-center justify-between text-xs text-zinc-400">
+              <span>Uploading…</span>
+              <span>{uploadProgress}%</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
+              <div
+                className="h-full rounded-full bg-violet-500 transition-[width] duration-150"
+                style={{width: `${uploadProgress}%`}}
+              />
+            </div>
+          </div>
+        )}
+
         <DialogFooter>
           <Button
             variant="outline"
@@ -196,7 +226,7 @@ const AddAlbumDialog = () => {
               isLoading || !imageFile || !newAlbum.title || !newAlbum.artist
             }
           >
-            {isLoading ? "Creating..." : "Add Album"}
+            {isLoading ? `Creating… ${uploadProgress}%` : "Add Album"}
           </Button>
         </DialogFooter>
       </DialogContent>

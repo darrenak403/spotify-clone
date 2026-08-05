@@ -35,6 +35,7 @@ const AddSongDialog = () => {
   const {albums} = useMusicStore();
   const [songDialogOpen, setSongDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [newSong, setNewSong] = useState<NewSong>({
     title: "",
@@ -55,6 +56,7 @@ const AddSongDialog = () => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
+    setUploadProgress(0);
 
     try {
       if (!files.audio || !files.image) {
@@ -79,6 +81,12 @@ const AddSongDialog = () => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        onUploadProgress: (progressEvent) => {
+          if (!progressEvent.total) return;
+          setUploadProgress(
+            Math.round((progressEvent.loaded / progressEvent.total) * 100)
+          );
+        },
       });
 
       setNewSong({
@@ -99,11 +107,18 @@ const AddSongDialog = () => {
       toast.error("Failed to add song: " + error.message);
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
   return (
-    <Dialog open={songDialogOpen} onOpenChange={setSongDialogOpen}>
+    <Dialog
+      open={songDialogOpen}
+      onOpenChange={(open) => {
+        if (isLoading) return;
+        setSongDialogOpen(open);
+      }}
+    >
       <DialogTrigger asChild>
         <Button className="bg-emerald-500 hover:bg-emerald-600 text-black">
           <Plus className="mr-2 h-4 w-4" />
@@ -267,6 +282,21 @@ const AddSongDialog = () => {
           </div>
         </div>
 
+        {isLoading && (
+          <div className="space-y-1.5" role="status" aria-live="polite">
+            <div className="flex items-center justify-between text-xs text-zinc-400">
+              <span>Uploading…</span>
+              <span>{uploadProgress}%</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-[width] duration-150"
+                style={{width: `${uploadProgress}%`}}
+              />
+            </div>
+          </div>
+        )}
+
         <DialogFooter>
           <Button
             variant="outline"
@@ -276,7 +306,7 @@ const AddSongDialog = () => {
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? "Uploading..." : "Add Song"}
+            {isLoading ? `Uploading… ${uploadProgress}%` : "Add Song"}
           </Button>
         </DialogFooter>
       </DialogContent>
