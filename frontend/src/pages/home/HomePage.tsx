@@ -55,7 +55,7 @@ const HomePage = () => {
       <script type="application/ld+json">{serializeJsonLd(siteJsonLd)}</script>
       <TopBar />
       <ScrollArea className="flex-1 min-h-0">
-        <div className="min-w-0 px-4 pt-5 pb-[calc(160px+env(safe-area-inset-bottom))] sm:p-6">
+        <div className="min-w-0 px-4 pt-5 sm:px-6 sm:pt-6 pb-[calc(176px+env(safe-area-inset-bottom))] md:pb-6">
           <h1 className="text-[28px] sm:text-3xl font-bold leading-tight truncate">
             Good Afternoon
           </h1>

@@ -177,7 +177,7 @@ const AlbumPage = () => {
 
               {/* Song lists */}
               <div className="px-2 sm:px-6">
-                <div className="space-y-2 py-4">
+                <div className="space-y-2 py-4 pb-[calc(176px+env(safe-area-inset-bottom))] md:pb-4">
                   {currentAlbum?.songs.map((song, index) => {
                     const isCurrentSong = currentSong?._id === song._id;
 

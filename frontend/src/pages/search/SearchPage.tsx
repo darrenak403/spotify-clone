@@ -23,7 +23,7 @@ const SearchPage = () => {
   }, [songs, query]);
 
   return (
-    <div className="h-full overflow-y-auto p-4 pb-24">
+    <div className="h-full overflow-y-auto p-4 pb-[calc(176px+env(safe-area-inset-bottom))] md:pb-6">
       <div className="relative mb-6">
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
         <Input

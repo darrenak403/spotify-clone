@@ -88,7 +88,7 @@ const ArtistPage = () => {
             aria-hidden="true"
           />
 
-          <div className="relative z-10 p-4 sm:p-6">
+          <div className="relative z-10 p-4 sm:px-6 sm:pt-6 pb-[calc(176px+env(safe-area-inset-bottom))] md:pb-6">
             <p className="text-sm font-medium">Artist</p>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold my-4 break-words">
               {artist.name}
