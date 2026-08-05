@@ -197,7 +197,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
             set({ featuredSongs: response.data });
         } catch (error: any) {
             console.error(error);
-            set({ error: error.response?.data?.message || error.message });
+            set({ error: error.response?.status === 401 ? "unauthorized" : error.response?.data?.message || error.message });
         } finally {
             set({ isLoading: false });
         }
@@ -210,7 +210,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
             set({ madeForYouSongs: response.data });
         } catch (error: any) {
             console.error(error);
-            set({ error: error.response?.data?.message || error.message });
+            set({ error: error.response?.status === 401 ? "unauthorized" : error.response?.data?.message || error.message });
         } finally {
             set({ isLoading: false });
         }
@@ -223,7 +223,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
             set({ trendingSongs: response.data });
         } catch (error: any) {
             console.error(error);
-            set({ error: error.response?.data?.message || error.message });
+            set({ error: error.response?.status === 401 ? "unauthorized" : error.response?.data?.message || error.message });
         } finally {
             set({ isLoading: false });
         }
