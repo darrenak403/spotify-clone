@@ -4,7 +4,7 @@ const FeaturedGridSkeleton = () => {
       {Array.from({length: 6}).map((_, i) => (
         <div
           key={i}
-          className="flex items-center bg-zinc-800/50 rounded-md overflow-hidden animate-pulse"
+          className="flex items-center bg-zinc-800/50 rounded-md overflow-hidden animate-pulse motion-reduce:animate-none"
         >
           <div className="w-16 sm:w-20 h-16 sm:h-20 bg-zinc-700 flex-shrink-0" />
           <div className="flex-1 p-4">

@@ -1,4 +1,5 @@
 import { axiosInstance } from '@/lib/axios';
+import { getRecommendationState } from '@/lib/getRecommendationState';
 import type { Album, Song, Stats } from '@/types';
 import toast from 'react-hot-toast';
 import { create } from 'zustand';
@@ -197,7 +198,7 @@ export const useMusicStore = create<MusicStore>((set, get) => ({
             set({ featuredSongs: response.data });
         } catch (error: any) {
             console.error(error);
-            set({ error: error.response?.status === 401 ? "unauthorized" : error.response?.data?.message || error.message });
+            set({ error: getRecommendationState(error) });
         } finally {
             set({ isLoading: false });
         }

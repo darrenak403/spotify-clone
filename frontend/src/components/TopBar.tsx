@@ -1,6 +1,6 @@
 import {LayoutDashboardIcon} from "lucide-react";
 import {Link} from "react-router-dom";
-import SignInOAuthButtons from "./SignInOAuthButton";
+import HeaderSignInButton from "./HeaderSignInButton";
 import UserMenu from "./UserMenu";
 import {useAuthStore} from "@/stores/useAuthStore";
 import {useAuth} from "@/providers/AuthProvider";
@@ -30,7 +30,7 @@ const TopBar = () => {
           </Link>
         )}
 
-        {user ? <UserMenu /> : <SignInOAuthButtons />}
+        {user ? <UserMenu /> : <HeaderSignInButton />}
       </div>
     </div>
   );

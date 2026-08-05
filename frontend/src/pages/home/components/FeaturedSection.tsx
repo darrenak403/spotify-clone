@@ -4,36 +4,19 @@ import {useMusicStore} from "@/stores/useMusicStore";
 import PlayButton from "./PlayButton";
 import {Link} from "react-router-dom";
 import {slugify} from "@/lib/slugify";
-import {useAuth} from "@/providers/AuthProvider";
-import SignInOAuthButtons from "@/components/SignInOAuthButton";
+import GuestRecommendationCard from "./GuestRecommendationCard";
+import RecommendationErrorState from "./RecommendationErrorState";
+import {asErrorStateTag} from "@/lib/getRecommendationState";
 
 const FeaturedSection = () => {
-  const {isLoading, featuredSongs, error, albums} = useMusicStore();
-  const {user} = useAuth();
+  const {isLoading, featuredSongs, error, albums, fetchFeaturedSongs} = useMusicStore();
 
   if (isLoading) return <FeaturedGridSkeleton />;
 
-  if (error === "unauthorized" && !user) {
-    return (
-      <div className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 text-center">
-        <p className="mb-4 text-sm text-zinc-400">
-          Sign in to see featured picks made for you.
-        </p>
-        <div className="mx-auto max-w-[240px]">
-          <SignInOAuthButtons />
-        </div>
-      </div>
-    );
-  }
+  if (error === "guest") return <GuestRecommendationCard />;
 
   if (error) {
-    return (
-      <div className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 text-center">
-        <p className="text-sm text-zinc-400">
-          Couldn't load featured songs. Please try again later.
-        </p>
-      </div>
-    );
+    return <RecommendationErrorState tag={asErrorStateTag(error)} onRetry={fetchFeaturedSongs} />;
   }
 
   return (
