@@ -16,7 +16,7 @@ const TopBar = () => {
       backdrop-blur-md z-10"
     >
       <div className="flex gap-2 items-center shrink-0">
-        <img src="/logoamnhac.png" alt="Evon logo" className="size-8" />
+        <img src="/logoamnhac.png" alt="Evon logo" className="size-9 sm:size-8" />
         <span className="hidden sm:inline">Evon</span>
       </div>
       <div className="flex gap-2 sm:gap-4 items-center min-w-0">

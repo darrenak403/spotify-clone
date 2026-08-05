@@ -28,7 +28,7 @@ const BottomNav = ({onFriendsClick}: BottomNavProps) => {
               active ? "text-emerald-500" : "text-zinc-400"
             )}
           >
-            <Icon className="size-5" />
+            <Icon className="size-6" />
             {label}
           </Link>
         );
@@ -37,7 +37,7 @@ const BottomNav = ({onFriendsClick}: BottomNavProps) => {
         onClick={onFriendsClick}
         className="flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] text-zinc-400"
       >
-        <Users className="size-5" />
+        <Users className="size-6" />
         Friends
       </button>
     </nav>

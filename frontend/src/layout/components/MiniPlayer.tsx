@@ -48,12 +48,12 @@ const MiniPlayer = () => {
             e.stopPropagation();
             togglePlay();
           }}
-          className="flex items-center justify-center size-9 rounded-full bg-white text-black flex-shrink-0"
+          className="flex items-center justify-center size-10 rounded-full bg-white text-black flex-shrink-0"
         >
           {isPlaying ? (
-            <Pause className="size-4" />
+            <Pause className="size-5" />
           ) : (
-            <Play className="size-4" />
+            <Play className="size-5" />
           )}
         </button>
       </div>
