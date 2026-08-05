@@ -41,7 +41,9 @@ app.use(
     useTempFiles: true,
     tempFileDir: path.join(__dirname, 'tmp'),
     createParentPath: true,
-    limits: {fileSize: 10 * 1024 * 1024},
+    limits: {fileSize: 100 * 1024 * 1024},
+    abortOnLimit: true,
+    responseOnLimit: 'File is too large. Maximum upload size is 100MB.',
   })
 )
 
