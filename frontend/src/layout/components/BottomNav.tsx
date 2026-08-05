@@ -24,13 +24,11 @@ const BottomNav = ({onFriendsClick}: BottomNavProps) => {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(10px,env(safe-area-inset-bottom))]"
+      className="fixed inset-x-0 bottom-0 z-50 rounded-t-2xl border-t border-white/[0.08]
+      bg-zinc-900/95 shadow-[0_-8px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl"
       aria-label="Primary"
     >
-      <div
-        className="mx-auto grid h-16 max-w-md grid-cols-4 rounded-[22px] border border-white/[0.08]
-        bg-zinc-900/95 px-2 shadow-[0_-8px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl"
-      >
+      <div className="grid h-16 grid-cols-4 px-2">
         {tabs.map(({to, label, icon: Icon}) => {
           const active = pathname === to;
           return (
@@ -55,6 +53,7 @@ const BottomNav = ({onFriendsClick}: BottomNavProps) => {
           <span className="text-[11px] font-medium leading-none">Friends</span>
         </button>
       </div>
+      <div className="h-[env(safe-area-inset-bottom)]" aria-hidden="true" />
     </nav>
   );
 };

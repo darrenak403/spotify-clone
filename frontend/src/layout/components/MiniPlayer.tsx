@@ -22,7 +22,7 @@ const MiniPlayer = () => {
         tabIndex={0}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => e.key === "Enter" && setOpen(true)}
-        className="fixed inset-x-3 z-40 bottom-[calc(80px+env(safe-area-inset-bottom))]
+        className="fixed inset-x-3 z-40 bottom-[calc(64px+env(safe-area-inset-bottom))]
         flex items-center gap-3 h-[70px] rounded-[18px] border border-white/[0.08] bg-zinc-800/95
         px-3 shadow-[0_-8px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl cursor-pointer overflow-hidden"
       >

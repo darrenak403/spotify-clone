@@ -38,7 +38,7 @@ const HorizontalMusicSection = ({
         aria-label={ariaLabel ?? title}
         className={cn(
           "-mx-4 flex flex-nowrap gap-3 overflow-x-auto overflow-y-visible px-4 pb-2",
-          "snap-x snap-mandatory touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch]",
+          "snap-x touch-pan-x overscroll-x-contain [-webkit-overflow-scrolling:touch]",
           "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
           "sm:mx-0 sm:grid sm:gap-4 sm:overflow-visible sm:px-0",
           className
