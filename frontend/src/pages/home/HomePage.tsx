@@ -1,7 +1,6 @@
 import {useMusicStore} from "@/stores/useMusicStore";
 import {useEffect} from "react";
 import FeaturedSection from "./components/FeaturedSection";
-import {ScrollArea} from "@/components/ui/scroll-area";
 import SectionGrid from "./components/SectionGrid";
 import TrendingSection from "./components/TrendingSection";
 import {usePlayerStore} from "@/stores/usePlayerStore";
@@ -54,7 +53,10 @@ const HomePage = () => {
       />
       <script type="application/ld+json">{serializeJsonLd(siteJsonLd)}</script>
       <TopBar />
-      <ScrollArea className="flex-1 min-h-0">
+      <div
+        className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain touch-pan-y
+        [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         <div className="min-w-0 px-4 pt-5 sm:px-6 sm:pt-6 pb-[calc(176px+env(safe-area-inset-bottom))] md:pb-6">
           <h1 className="text-[28px] sm:text-3xl font-bold leading-tight truncate">
             Good Afternoon
@@ -76,7 +78,7 @@ const HomePage = () => {
             />
           </div>
         </div>
-      </ScrollArea>
+      </div>
     </main>
   );
 };
