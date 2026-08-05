@@ -23,12 +23,12 @@ const SignInOAuthButton = () => {
       onClick={handleClick}
       disabled={isSigningIn}
       variant={"secondary"}
-      className="w-full text-white border-zinc-200 h-11"
+      className="max-w-full text-white border-zinc-200 h-11 px-4 text-sm sm:text-base"
     >
       {isSigningIn ? (
         <Loader2 className="size-4 animate-spin" />
       ) : (
-        "Continue with Google"
+        <span className="truncate">Continue with Google</span>
       )}
     </Button>
   );

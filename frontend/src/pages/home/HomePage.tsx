@@ -3,6 +3,7 @@ import {useEffect} from "react";
 import FeaturedSection from "./components/FeaturedSection";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import SectionGrid from "./components/SectionGrid";
+import TrendingSection from "./components/TrendingSection";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import TopBar from "@/components/TopBar";
 import Seo from "@/components/Seo";
@@ -54,11 +55,11 @@ const HomePage = () => {
       <script type="application/ld+json">{serializeJsonLd(siteJsonLd)}</script>
       <TopBar />
       <ScrollArea className="flex-1 min-h-0">
-        <div className="p-4 sm:p-6 pb-24 sm:pb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-6">
+        <div className="min-w-0 px-4 pt-5 pb-[calc(160px+env(safe-area-inset-bottom))] sm:p-6">
+          <h1 className="text-[28px] sm:text-3xl font-bold leading-tight truncate">
             Good Afternoon
           </h1>
-          <p className="text-sm text-zinc-400 mb-6 line-clamp-1 sm:line-clamp-none">
+          <p className="mt-3 mb-8 line-clamp-2 text-[15px] leading-6 text-zinc-400 sm:line-clamp-none">
             {siteJsonLd.description}
           </p>
           <FeaturedSection />
@@ -69,8 +70,7 @@ const HomePage = () => {
               songs={madeForYouSongs}
               isLoading={isLoading}
             />
-            <SectionGrid
-              title="Trending"
+            <TrendingSection
               songs={trendingSongs}
               isLoading={isLoading}
             />

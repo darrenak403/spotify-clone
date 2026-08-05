@@ -29,48 +29,50 @@ const SectionGrid: FC<SectionGridProps> = ({title, songs, isLoading}) => {
         </Button>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:overflow-visible">
-        {songs.map((song: Song) => {
-          const album = albums.find((item) => item._id === song.albumId);
+      <div className="-mx-4 overflow-hidden sm:mx-0">
+        <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+          {songs.map((song: Song) => {
+            const album = albums.find((item) => item._id === song.albumId);
 
-          return (
-            <div
-              key={song._id}
-              className="w-36 flex-shrink-0 sm:w-auto bg-zinc-800/40 p-4 rounded-md hover:bg-zinc-700/40 transition-all group cursor-pointer"
-            >
-              <div className="relative mb-4">
-                <div className="aspect-square rounded-md shadow-lg overflow-hidden">
-                  <img
-                    src={getOptimizedImageUrl(song.imageUrl)}
-                    alt={song.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  {/* TODO: ADD play button */}
-                  <PlayButton song={song} />
+            return (
+              <div
+                key={song._id}
+                className="w-[156px] shrink-0 snap-start rounded-2xl bg-zinc-900 p-3 hover:bg-zinc-800 transition-all group cursor-pointer max-[359px]:w-36 sm:w-auto sm:rounded-md sm:bg-zinc-800/40 sm:p-4 sm:hover:bg-zinc-700/40"
+              >
+                <div className="relative mb-4">
+                  <div className="aspect-square rounded-xl sm:rounded-md shadow-lg overflow-hidden">
+                    <img
+                      src={getOptimizedImageUrl(song.imageUrl)}
+                      alt={song.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {/* TODO: ADD play button */}
+                    <PlayButton song={song} />
+                  </div>
                 </div>
-              </div>
-              {album ? (
+                {album ? (
+                  <Link
+                    to={`/albums/${album.slug}`}
+                    className="font-medium mb-1 truncate hover:underline block"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    {song.title}
+                  </Link>
+                ) : (
+                  <h3 className="font-medium mb-1 truncate">{song.title}</h3>
+                )}
                 <Link
-                  to={`/albums/${album.slug}`}
-                  className="font-medium mb-2 truncate hover:underline block"
+                  to={`/artists/${slugify(song.artist)}`}
+                  className="text-sm text-zinc-400 truncate hover:underline hover:text-white block"
                   onClick={(event) => event.stopPropagation()}
                 >
-                  {song.title}
+                  {song.artist}
                 </Link>
-              ) : (
-                <h3 className="font-medium mb-2 truncate">{song.title}</h3>
-              )}
-              <Link
-                to={`/artists/${slugify(song.artist)}`}
-                className="text-sm text-zinc-400 truncate hover:underline hover:text-white block"
-                onClick={(event) => event.stopPropagation()}
-              >
-                {song.artist}
-              </Link>
-            </div>
-          );
-        })}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
