@@ -1,6 +1,7 @@
 import {Button} from "@/components/ui/button";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {getOptimizedImageUrl} from "@/lib/getOptimizedImageUrl";
+import {useIsMobile} from "@/hooks/useIsMobile";
 import {useAuth} from "@/providers/AuthProvider";
 import {useMusicStore} from "@/stores/useMusicStore";
 import {usePlayerStore} from "@/stores/usePlayerStore";
@@ -23,6 +24,7 @@ const AlbumPage = () => {
   const {fetchAlbumById, currentAlbum, isLoading} = useMusicStore();
   const {currentSong, isPlaying, playAlbum, togglePlay} = usePlayerStore();
   const {user, signInWithGoogle} = useAuth();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (slug) fetchAlbumById(slug);
@@ -42,7 +44,8 @@ const AlbumPage = () => {
   }
 
   const requireAuth = () => {
-    if (user) return true;
+    // Sign-in-to-play gate is disabled on mobile for now — kept in place for web/admin.
+    if (user || isMobile) return true;
     toast.error("Sign in to play music");
     signInWithGoogle();
     return false;

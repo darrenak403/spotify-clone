@@ -4,12 +4,14 @@ import HeaderSignInButton from "./HeaderSignInButton";
 import UserMenu from "./UserMenu";
 import {useAuthStore} from "@/stores/useAuthStore";
 import {useAuth} from "@/providers/AuthProvider";
+import {useIsMobile} from "@/hooks/useIsMobile";
 import {buttonVariants} from "./ui/button";
 import {cn} from "@/lib/utils";
 
 const TopBar = () => {
   const {isAdmin} = useAuthStore();
   const {user} = useAuth();
+  const isMobile = useIsMobile();
   return (
     <div
       className="flex items-center justify-between gap-2 h-16 px-4 sticky top-0 bg-zinc-900/75
@@ -30,7 +32,8 @@ const TopBar = () => {
           </Link>
         )}
 
-        {user ? <UserMenu /> : <HeaderSignInButton />}
+        {/* Sign-in-to-listen is disabled on mobile, so the sign-in CTA is hidden there too — web/admin unaffected. */}
+        {user ? <UserMenu /> : !isMobile && <HeaderSignInButton />}
       </div>
     </div>
   );

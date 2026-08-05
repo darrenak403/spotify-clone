@@ -15,8 +15,9 @@ import BottomNav from "./components/BottomNav";
 import MiniPlayer from "./components/MiniPlayer";
 import AudioPlayer from "./components/AudioPlayer";
 import {PlaybackControls} from "./components/PlaybackControls";
-import {Suspense, useEffect, useState} from "react";
+import {Suspense, useState} from "react";
 import {Loader} from "lucide-react";
+import {useIsMobile} from "@/hooks/useIsMobile";
 
 const PageLoader = () => (
   <div className="h-full w-full flex items-center justify-center">
@@ -25,21 +26,9 @@ const PageLoader = () => (
 );
 
 const MainLayout = () => {
-  const [isMobile, setIsMobile] = useState(false); // Replace with actual mobile detection logic
+  const isMobile = useIsMobile();
   const [showFriendActivity, setShowFriendActivity] = useState(false);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(
-        window.innerWidth <= 768 // Example breakpoint for mobile
-      );
-    };
-    checkMobile(); // Initial check
-    window.addEventListener("resize", checkMobile); // Update on resize
-    return () => {
-      window.removeEventListener("resize", checkMobile); // Cleanup listener
-    };
-  }, []);
   return (
     <div className="h-screen bg-black text-white flex flex-col pt-[env(safe-area-inset-top)]">
       <ResizablePanelGroup

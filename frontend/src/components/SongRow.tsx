@@ -5,6 +5,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {getOptimizedImageUrl} from "@/lib/getOptimizedImageUrl";
+import {useIsMobile} from "@/hooks/useIsMobile";
 import {slugify} from "@/lib/slugify";
 import {cn} from "@/lib/utils";
 import {useAuth} from "@/providers/AuthProvider";
@@ -25,11 +26,13 @@ const SongRow = ({song, songs, index}: SongRowProps) => {
   const {currentSong, isPlaying, playAlbum, togglePlay, addToQueue} =
     usePlayerStore();
   const {user, signInWithGoogle} = useAuth();
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const isCurrent = currentSong?._id === song._id;
 
   const handlePlay = () => {
-    if (!user) {
+    // Sign-in-to-play gate is disabled on mobile for now — kept in place for web/admin.
+    if (!user && !isMobile) {
       toast.error("Sign in to play music");
       signInWithGoogle();
       return;

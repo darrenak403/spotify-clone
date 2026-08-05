@@ -1,4 +1,5 @@
 import {Button} from "@/components/ui/button";
+import {useIsMobile} from "@/hooks/useIsMobile";
 import {useAuth} from "@/providers/AuthProvider";
 import {usePlayerStore} from "@/stores/usePlayerStore";
 import type {Song} from "@/types";
@@ -8,10 +9,12 @@ import toast from "react-hot-toast";
 const PlayButton = ({song}: {song: Song}) => {
   const {currentSong, isPlaying, setCurrentSong, togglePlay} = usePlayerStore();
   const {user, signInWithGoogle} = useAuth();
+  const isMobile = useIsMobile();
   const isCurrentSong = currentSong?._id === song._id;
 
   const handlePlay = () => {
-    if (!user) {
+    // Sign-in-to-play gate is disabled on mobile for now — kept in place for web/admin.
+    if (!user && !isMobile) {
       toast.error("Sign in to play music");
       signInWithGoogle();
       return;
